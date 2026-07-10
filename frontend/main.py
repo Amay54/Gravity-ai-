@@ -38,13 +38,14 @@ def check_backend_connection() -> dict:
 
 # Initialize session state variables
 if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
+    st.session_state.authenticated = True
 if "user_email" not in st.session_state:
-    st.session_state.user_email = ""
+    st.session_state.user_email = "anonymous@gravityai.internal"
 if "user_name" not in st.session_state:
-    st.session_state.user_name = ""
+    st.session_state.user_name = "Anonymous User"
 if "user_id" not in st.session_state:
-    st.session_state.user_id = "anon-user-uuid"
+    import uuid
+    st.session_state.user_id = f"anon-user-{uuid.uuid4()}"
 if "user_avatar" not in st.session_state:
     st.session_state.user_avatar = (
         "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp"
@@ -66,91 +67,6 @@ if "sources" not in st.session_state:
     st.session_state.sources = []
 
 
-# AUTHENTICATION PANEL
-if not st.session_state.authenticated:
-    st.title("🤖 GravityAI - Research Login Portal")
-    st.markdown(
-        "Autonomously research corporate insights using multi-agent workflows. Please authenticate to start."
-    )
-
-    col_auth, col_info = st.columns([1, 1])
-
-    with col_auth:
-        tab_signin, tab_register, tab_oauth = st.tabs(
-            ["Sign In", "Register Account", "Google OAuth"]
-        )
-
-        with tab_signin:
-            signin_email = st.text_input("Email Address", key="signin_email")
-            signin_pass = st.text_input("Password", type="password", key="signin_pass")
-            signin_btn = st.button("Sign In", type="primary", use_container_width=True)
-
-            if signin_btn:
-                if not signin_email or not signin_pass:
-                    st.error("Please provide both email and password.")
-                else:
-                    try:
-                        res = api_client.login(signin_email, signin_pass)
-                        st.session_state.authenticated = True
-                        st.session_state.user_email = res.get("email")
-                        st.session_state.user_name = res.get("full_name")
-                        st.session_state.user_id = res.get("user_id")
-                        st.success("Successfully logged in!")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Sign in failed: {e}")
-
-        with tab_register:
-            signup_email = st.text_input("New Account Email", key="signup_email")
-            signup_pass = st.text_input("New Password", type="password", key="signup_pass")
-            signup_btn = st.button("Create Account", type="primary", use_container_width=True)
-
-            if signup_btn:
-                if not signup_email or not signup_pass:
-                    st.error("Please supply both email and password details.")
-                else:
-                    try:
-                        res = api_client.register(signup_email, signup_pass)
-                        st.success(
-                            res.get(
-                                "message", "Registration successful. Please check email or login."
-                            )
-                        )
-                    except Exception as e:
-                        st.error(f"Registration failed: {e}")
-
-        with tab_oauth:
-            st.markdown("Authenticate instantly using Google Credentials.")
-            oauth_btn = st.button("Authenticate with Google", use_container_width=True)
-            if oauth_btn:
-                try:
-                    res = api_client.oauth("google")
-                    if res.get("url"):
-                        st.markdown(
-                            f"[Authorize Google Authentication Link]({res.get('url')})",
-                            unsafe_allow_html=True,
-                        )
-                    else:
-                        st.session_state.authenticated = True
-                        st.session_state.user_email = res.get("email", "oauth@mock.com")
-                        st.session_state.user_name = res.get("full_name", "Mock OAuth User")
-                        st.session_state.user_id = res.get("user_id", "mock-oauth-123")
-                        st.success("Signed in via Mock OAuth!")
-                        st.rerun()
-                except Exception as e:
-                    st.error(f"OAuth redirect failed: {e}")
-
-    with col_info:
-        st.info(
-            "### GravityAI Enterprise Features\n"
-            "- **Multi-Agent Scraper Workflow**: Gathers verified insights from Wikipedia and sitemaps.\n"
-            "- **Zero Factual Fabrication**: Zero-hallucination policies rank citations before outputting telemetry.\n"
-            "- **Version History**: Saves report iterations to Supabase Cloud.\n"
-            "- **Storage Persistence**: Access and download signed PDF files directly."
-        )
-    st.stop()
-
-
 # Sidebar Branding, Profile and History
 with st.sidebar:
     st.title("GravityAI")
@@ -161,17 +77,16 @@ with st.sidebar:
     st.markdown(f"👤 Logged in: **{st.session_state.user_name}**")
     st.caption(st.session_state.user_email)
 
-    if st.button("Sign Out", type="secondary"):
-        try:
-            api_client.logout()
-        except Exception:
-            pass
-        st.session_state.authenticated = False
-        st.session_state.user_email = ""
-        st.session_state.user_name = ""
-        st.session_state.user_id = "anon-user-uuid"
+    if st.button("Reset Session", type="secondary"):
+        import uuid
+        st.session_state.user_id = f"anon-user-{uuid.uuid4()}"
         st.session_state.research_completed = False
         st.session_state.report = {}
+        st.session_state.company_name = ""
+        st.session_state.company_domain = ""
+        st.session_state.session_id = None
+        st.session_state.chat_history = []
+        st.session_state.sources = []
         st.rerun()
 
     st.write("---")
