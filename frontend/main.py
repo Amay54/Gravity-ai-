@@ -3,7 +3,6 @@ import time
 
 import streamlit as st
 
-from backend.core.supabase import supabase_wrapper
 from frontend.client.api_client import APIClientError, GravityAPIClient
 
 # Configure page settings
@@ -83,28 +82,16 @@ if not st.session_state.authenticated:
                 if not signin_email or not signin_pass:
                     st.error("Please provide both email and password.")
                 else:
-                    if supabase_wrapper.is_mock:
+                    try:
+                        res = api_client.login(signin_email, signin_pass)
                         st.session_state.authenticated = True
-                        st.session_state.user_email = signin_email
-                        st.session_state.user_name = signin_email.split("@")[0].capitalize()
-                        st.session_state.user_id = "mock-user-123"
-                        st.success("Successfully logged in (Developer Mock Mode)!")
+                        st.session_state.user_email = res.get("email")
+                        st.session_state.user_name = res.get("full_name")
+                        st.session_state.user_id = res.get("user_id")
+                        st.success("Successfully logged in!")
                         st.rerun()
-                    else:
-                        try:
-                            res = supabase_wrapper.get_client().auth.sign_in_with_password(
-                                {"email": signin_email, "password": signin_pass}
-                            )
-                            st.session_state.authenticated = True
-                            st.session_state.user_email = res.user.email
-                            st.session_state.user_name = res.user.user_metadata.get(
-                                "full_name", signin_email.split("@")[0].capitalize()
-                            )
-                            st.session_state.user_id = res.user.id
-                            st.success("Successfully logged in!")
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"Sign in failed: {e}")
+                    except Exception as e:
+                        st.error(f"Sign in failed: {e}")
 
         with tab_register:
             signup_email = st.text_input("New Account Email", key="signup_email")
@@ -115,44 +102,36 @@ if not st.session_state.authenticated:
                 if not signup_email or not signup_pass:
                     st.error("Please supply both email and password details.")
                 else:
-                    if supabase_wrapper.is_mock:
-                        st.session_state.authenticated = True
-                        st.session_state.user_email = signup_email
-                        st.session_state.user_name = signup_email.split("@")[0].capitalize()
-                        st.session_state.user_id = "mock-user-123"
-                        st.success("Successfully registered (Developer Mock Mode)!")
-                        st.rerun()
-                    else:
-                        try:
-                            supabase_wrapper.get_client().auth.sign_up(
-                                {"email": signup_email, "password": signup_pass}
+                    try:
+                        res = api_client.register(signup_email, signup_pass)
+                        st.success(
+                            res.get(
+                                "message", "Registration successful. Please check email or login."
                             )
-                            st.success("Sign up email verification sent! Please check your inbox.")
-                        except Exception as e:
-                            st.error(f"Registration failed: {e}")
+                        )
+                    except Exception as e:
+                        st.error(f"Registration failed: {e}")
 
         with tab_oauth:
             st.markdown("Authenticate instantly using Google Credentials.")
             oauth_btn = st.button("Authenticate with Google", use_container_width=True)
             if oauth_btn:
-                if supabase_wrapper.is_mock:
-                    st.session_state.authenticated = True
-                    st.session_state.user_email = "google.oauth.developer@gmail.com"
-                    st.session_state.user_name = "Google OAuth Developer"
-                    st.session_state.user_id = "mock-oauth-123"
-                    st.success("Signed in via Mock OAuth!")
-                    st.rerun()
-                else:
-                    try:
-                        res = supabase_wrapper.get_client().auth.sign_in_with_oauth(
-                            {"provider": "google"}
-                        )
+                try:
+                    res = api_client.oauth("google")
+                    if res.get("url"):
                         st.markdown(
-                            f"[Authorize Google Authentication Link]({res.url})",
+                            f"[Authorize Google Authentication Link]({res.get('url')})",
                             unsafe_allow_html=True,
                         )
-                    except Exception as e:
-                        st.error(f"OAuth redirect failed: {e}")
+                    else:
+                        st.session_state.authenticated = True
+                        st.session_state.user_email = res.get("email", "oauth@mock.com")
+                        st.session_state.user_name = res.get("full_name", "Mock OAuth User")
+                        st.session_state.user_id = res.get("user_id", "mock-oauth-123")
+                        st.success("Signed in via Mock OAuth!")
+                        st.rerun()
+                except Exception as e:
+                    st.error(f"OAuth redirect failed: {e}")
 
     with col_info:
         st.info(
@@ -176,11 +155,10 @@ with st.sidebar:
     st.caption(st.session_state.user_email)
 
     if st.button("Sign Out", type="secondary"):
-        if not supabase_wrapper.is_mock:
-            try:
-                supabase_wrapper.get_client().auth.sign_out()
-            except Exception:
-                pass
+        try:
+            api_client.logout()
+        except Exception:
+            pass
         st.session_state.authenticated = False
         st.session_state.user_email = ""
         st.session_state.user_name = ""

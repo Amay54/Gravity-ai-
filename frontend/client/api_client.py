@@ -416,3 +416,58 @@ class GravityAPIClient:
         except httpx.HTTPError as he:
             logger.error(f"API get_performance_metrics failed: {he}")
             raise APIClientError(f"Failed to fetch system metrics: {str(he)}") from he
+
+    def login(self, email: str, password: str) -> dict[str, Any]:
+        """
+        Authenticates user with email and password via backend.
+        """
+        url = self._get_url("auth/login")
+        payload = {"email": email, "password": password}
+        try:
+            response = self.client.post(url, json=payload)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPError as he:
+            logger.error(f"API login failed: {he}")
+            raise APIClientError(f"Login failed: {str(he)}") from he
+
+    def register(self, email: str, password: str) -> dict[str, Any]:
+        """
+        Registers a new account via backend.
+        """
+        url = self._get_url("auth/register")
+        payload = {"email": email, "password": password}
+        try:
+            response = self.client.post(url, json=payload)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPError as he:
+            logger.error(f"API register failed: {he}")
+            raise APIClientError(f"Registration failed: {str(he)}") from he
+
+    def logout(self) -> dict[str, Any]:
+        """
+        Signs user out via backend.
+        """
+        url = self._get_url("auth/logout")
+        try:
+            response = self.client.post(url)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPError as he:
+            logger.error(f"API logout failed: {he}")
+            raise APIClientError(f"Logout failed: {str(he)}") from he
+
+    def oauth(self, provider: str = "google") -> dict[str, Any]:
+        """
+        Triggers OAuth sign in via backend.
+        """
+        url = self._get_url("auth/oauth")
+        payload = {"provider": provider}
+        try:
+            response = self.client.post(url, json=payload)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPError as he:
+            logger.error(f"API oauth failed: {he}")
+            raise APIClientError(f"OAuth connection failed: {str(he)}") from he

@@ -8,6 +8,7 @@ from loguru import logger
 
 from backend.agents.planner.planner_agent import PlannerAgent
 from backend.agents.research.research_agent import ResearchAgent
+from backend.api.v1.endpoints.auth import router as auth_router
 from backend.api.v1.endpoints.content import router as content_router
 from backend.api.v1.endpoints.export import router as export_router
 from backend.api.v1.endpoints.research import router as research_router
@@ -66,6 +67,7 @@ app.add_middleware(RequestIdMiddleware)
 app.include_router(
     system_router, prefix=f"{settings.api_prefix}/system", tags=["System Operations"]
 )
+app.include_router(auth_router, prefix=f"{settings.api_prefix}/auth", tags=["User Authentication"])
 app.include_router(
     research_router, prefix=f"{settings.api_prefix}/research", tags=["Company Research"]
 )

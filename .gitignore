@@ -38,3 +38,9 @@ logs/
 data/
 *.db
 *.log
+backend/storage/**/*.pdf
+backend/storage/**/*.docx
+backend/storage/**/*.pptx
+backend/storage/**/*.json
+backend/storage/**/*.md
+backend/storage/**/*.html
