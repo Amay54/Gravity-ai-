@@ -75,14 +75,28 @@ async def execute_graph_background(
     await research_repo.update_job(session_id, {"status": "running"})
 
     try:
+        logger.info(
+            f"[Research API] execute_graph_background: Resetting Gemini counter for ID: {session_id}"
+        )
         # Reset Gemini API calls session counter
         GeminiLLM.reset_session_counter()
+
+        logger.info(
+            f"[Research API] execute_graph_background: Invoking workflow graph for ID: {session_id}"
+        )
         # Run graph
         final_state = await workflow_engine.graph.ainvoke(initial_state)
+
+        logger.info(
+            f"[Research API] execute_graph_background: Graph invoked successfully for ID: {session_id}"
+        )
         # Update cache with final state
         cache_manager.set(session_id, final_state)
     except Exception as e:
-        logger.error(f"[Research API] Graph execution failed: {e}")
+        logger.error(
+            f"[Research API] execute_graph_background: Exception raised during execution: {e}",
+            exc_info=True,
+        )
         initial_state["status"] = "failed"
         initial_state["errors"].append(str(e))
         initial_state["execution_status"].append(f"CRITICAL ERROR: {str(e)}")
@@ -96,9 +110,9 @@ async def execute_graph_background(
     summary="Launch Corporate Research Workflow",
     description="Initiates the dynamic multi-agent LangGraph workflow.",
 )
-async def start_research(
-    payload: ResearchRequest, background_tasks: BackgroundTasks
-) -> dict[str, Any]:
+async def start_research(payload: ResearchRequest) -> dict[str, Any]:
+    import asyncio
+
     session_id = str(uuid.uuid4())
     logger.info(f"API request to start research. Session ID: {session_id}")
 
@@ -114,14 +128,21 @@ async def start_research(
     }
     await research_repo.create_job(job_data)
 
-    background_tasks.add_task(
-        execute_graph_background,
-        session_id=session_id,
-        company=payload.company_name,
-        domain=payload.domain,
-        depth=payload.depth,
-        scope=payload.scope,
-        priority=payload.priority,
+    logger.info(
+        f"[Research API] Scheduling background task with asyncio.create_task for Session ID: {session_id}"
+    )
+    task = asyncio.create_task(
+        execute_graph_background(
+            session_id=session_id,
+            company=payload.company_name,
+            domain=payload.domain,
+            depth=payload.depth,
+            scope=payload.scope,
+            priority=payload.priority,
+        )
+    )
+    logger.info(
+        f"[Research API] Background task successfully spawned: {task} for Session ID: {session_id}"
     )
 
     return {
