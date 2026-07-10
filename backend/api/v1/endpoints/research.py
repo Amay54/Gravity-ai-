@@ -75,6 +75,8 @@ async def execute_graph_background(
     await research_repo.update_job(session_id, {"status": "running"})
 
     try:
+        # Reset Gemini API calls session counter
+        GeminiLLM.reset_session_counter()
         # Run graph
         final_state = await workflow_engine.graph.ainvoke(initial_state)
         # Update cache with final state

@@ -23,7 +23,7 @@ class ReportReviewerAgent(BaseSpecialistAgent):
     domain: str = "Quality Assurance & Contradictions Check"
 
     # Safety limits
-    MAX_REVIEWER_LOOPS: int = 3
+    MAX_REVIEWER_LOOPS: int = 1
     MAX_EXECUTION_TIME_MS: float = 300_000.0  # 5 minutes
     MAX_TOOL_EXECUTIONS: int = 50
 

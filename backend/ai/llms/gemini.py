@@ -1,4 +1,7 @@
+import asyncio
+import inspect
 from collections.abc import AsyncGenerator
+from datetime import datetime
 from typing import Any
 
 from google import genai
@@ -10,14 +13,30 @@ from backend.ai.llms.base_llm import BaseLLM
 from backend.core.config import settings
 
 
+class GeminiQuotaExceededError(Exception):
+    """Exception raised when session-based Gemini calls exceed the maximum allowed quota limit."""
+
+    pass
+
+
 class GeminiLLM(BaseLLM):
     """
     Google Gemini 2.5 Flash implementation of the BaseLLM interface using the official google-genai SDK.
+    Includes session execution request caps, exponential backoffs, and caller audit logging.
     """
+
+    _session_calls_count: int = 0
+    MAX_GEMINI_CALLS_PER_SESSION: int = 15
 
     def __init__(self, model_name: str = "gemini-2.5-flash", temperature: float = 0.0) -> None:
         super().__init__(model_name, temperature)
         self._client: genai.Client | None = None
+
+    @classmethod
+    def reset_session_counter(cls) -> None:
+        """Resets the global session model invocation counter."""
+        cls._session_calls_count = 0
+        logger.info("[Gemini Audit] Reset session request counter.")
 
     def _get_client(self) -> genai.Client:
         """
@@ -39,17 +58,73 @@ class GeminiLLM(BaseLLM):
         logger.info("Google GenAI unified client initialized successfully.")
         return self._client
 
+    def _get_caller_agent(self) -> str:
+        """Dynamic stack inspector identifying the caller class and function."""
+        for frame_info in inspect.stack():
+            frame = frame_info.frame
+            self_obj = frame.f_locals.get("self", None)
+            if self_obj:
+                class_name = self_obj.__class__.__name__
+                if any(x in class_name for x in ["Agent", "Specialist", "Workflow", "Tool"]):
+                    return f"{class_name}.{frame_info.function}"
+        return "UnknownCaller"
+
+    async def _execute_with_backoff_and_limit(self, call_fn: Any, *args: Any, **kwargs: Any) -> Any:
+        """Enforces request limits, logs telemetry, and retries 429 errors using backoff."""
+        if GeminiLLM._session_calls_count >= GeminiLLM.MAX_GEMINI_CALLS_PER_SESSION:
+            msg = (
+                f"Gemini API request cap reached ({GeminiLLM.MAX_GEMINI_CALLS_PER_SESSION} calls). "
+                f"Aborting session execution."
+            )
+            logger.error(f"[Gemini Audit] {msg}")
+            raise GeminiQuotaExceededError(msg)
+
+        GeminiLLM._session_calls_count += 1
+
+        agent_name = self._get_caller_agent()
+        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+        max_retries = 3
+        backoff_factor = 2.0
+        base_delay = 1.0
+
+        for attempt in range(max_retries + 1):
+            logger.info(
+                f"[Gemini Audit] Request #{GeminiLLM._session_calls_count} | "
+                f"Agent: {agent_name} | Model: {self.model_name} | "
+                f"Timestamp: {timestamp} | Retry: {attempt}"
+            )
+
+            try:
+                # Execute unified SDK call
+                return call_fn(*args, **kwargs)
+            except Exception as e:
+                err_msg = str(e)
+                if ("429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg) and attempt < max_retries:
+                    delay = base_delay * (backoff_factor**attempt)
+                    logger.warning(
+                        f"[Gemini Audit] 429 RESOURCE_EXHAUSTED. Retrying in {delay:.2f}s... "
+                        f"(Attempt {attempt + 1}/{max_retries})"
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+                raise
+
     async def generate(self, prompt: str, **kwargs: Any) -> str:
         """
         Generates standard text using models.generate_content.
         """
         logger.debug(f"Gemini generate content: {self.model_name}")
-        try:
+
+        def _call() -> Any:
             client = self._get_client()
             config = types.GenerateContentConfig(temperature=self.temperature, **kwargs)
-            response = client.models.generate_content(
+            return client.models.generate_content(
                 model=self.model_name, contents=prompt, config=config
             )
+
+        try:
+            response = await self._execute_with_backoff_and_limit(_call)
             return response.text or ""
         except Exception as e:
             logger.error(f"Gemini generation failed: {e}")
@@ -66,7 +141,6 @@ class GeminiLLM(BaseLLM):
             response_stream = client.models.generate_content_stream(
                 model=self.model_name, contents=prompt, config=config
             )
-            # Iterate through stream chunks
             for chunk in response_stream:
                 yield chunk.text or ""
         except Exception as e:
@@ -80,7 +154,8 @@ class GeminiLLM(BaseLLM):
         Generates structured outputs matching Pydantic class maps.
         """
         logger.debug(f"Gemini generate JSON matching schema: {response_schema.__name__}")
-        try:
+
+        def _call() -> Any:
             client = self._get_client()
             config = types.GenerateContentConfig(
                 temperature=self.temperature,
@@ -88,9 +163,12 @@ class GeminiLLM(BaseLLM):
                 response_schema=response_schema,
                 **kwargs,
             )
-            response = client.models.generate_content(
+            return client.models.generate_content(
                 model=self.model_name, contents=prompt, config=config
             )
+
+        try:
+            response = await self._execute_with_backoff_and_limit(_call)
             return response_schema.model_validate_json(response.text or "{}")
         except Exception as e:
             logger.error(f"Gemini structured JSON generation failed: {e}")
@@ -98,12 +176,12 @@ class GeminiLLM(BaseLLM):
 
     async def count_tokens(self, prompt: str) -> int:
         """
-        Estimates prompt size using count_tokens API.
+        Returns length estimation logs.
         """
         try:
             client = self._get_client()
             response = client.models.count_tokens(model=self.model_name, contents=prompt)
             return response.total_tokens
         except Exception as e:
-            logger.error(f"Gemini token counting failed: {e}")
-            return len(prompt) // 4  # standard fallback rule
+            logger.error(f"Failed to count tokens: {e}")
+            raise

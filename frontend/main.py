@@ -45,6 +45,7 @@ if "user_name" not in st.session_state:
     st.session_state.user_name = "Anonymous User"
 if "user_id" not in st.session_state:
     import uuid
+
     st.session_state.user_id = f"anon-user-{uuid.uuid4()}"
 if "user_avatar" not in st.session_state:
     st.session_state.user_avatar = (
@@ -79,6 +80,7 @@ with st.sidebar:
 
     if st.button("Reset Session", type="secondary"):
         import uuid
+
         st.session_state.user_id = f"anon-user-{uuid.uuid4()}"
         st.session_state.research_completed = False
         st.session_state.report = {}

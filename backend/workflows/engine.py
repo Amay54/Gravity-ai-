@@ -17,7 +17,7 @@ from backend.agents.specialists import (
     ResearchManagerAgent,
     TechnologyAnalystAgent,
 )
-from backend.ai.llms.gemini import GeminiLLM
+from backend.ai.llms.gemini import GeminiLLM, GeminiQuotaExceededError
 from backend.core.confidence import evaluate_report_quality
 from backend.repositories.report_repository import ReportRepository
 from backend.repositories.research_repository import ResearchRepository
@@ -125,7 +125,7 @@ def route_next_node(state: ResearchState) -> str:
         else review.get("target_specialists", [])
     )
 
-    if approved is False and loops <= 3:
+    if approved is False and loops <= 1:
         if target_specialists:
             target_agent = target_specialists[0]
             logger.info(
@@ -323,6 +323,12 @@ async def execute_node_with_retry_and_timeout(
             attempt += 1
             if attempt <= max_retries:
                 await asyncio.sleep(retry_delay_seconds)
+        except GeminiQuotaExceededError as qe:
+            logger.error(
+                f"[Workflow Engine] Node '{node_name}' aborted immediately due to Gemini API call cap: {qe}"
+            )
+            # Abort graph execution and propagate error without retries
+            raise
         except Exception as e:
             logger.error(f"[Workflow Engine] Node '{node_name}' failed with error: {e}")
             attempt += 1

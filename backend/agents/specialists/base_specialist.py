@@ -1,6 +1,5 @@
 from loguru import logger
 
-from backend.ai.llms.gemini import GeminiLLM
 from backend.schemas.research import AgentMemory, ReflectionResult
 
 
@@ -12,30 +11,42 @@ class BaseSpecialistAgent:
 
     def __init__(self) -> None:
         self.memory = AgentMemory(agent_name=self.name)
-        self.llm = GeminiLLM(temperature=0.0)
 
     async def reflect(self, data_summary: str) -> ReflectionResult:
-        """Runs agent reflection over retrieved facts using Gemini and ReflectionResult schema."""
-        prompt = f"""
-        You are the {self.name} acting in the {self.domain} domain.
-        Review the following collected facts and evaluate if additional parameters are required to verify the details:
+        """Runs deterministic agent reflection to bypass LLM calls and conserve quota."""
+        missing_information = []
+        recommended_tools = []
 
-        {data_summary}
-
-        Evaluate:
-        1. Confidence rating (0.0 to 1.0).
-        2. Any missing information gaps.
-        3. Recommended recovery tools.
-        4. Reasoning explanation.
-        """
-        try:
-            result = await self.llm.generate_json(prompt, response_schema=ReflectionResult)
-            return result
-        except Exception as e:
-            logger.error(f"[{self.name}] Reflection failed: {e}")
-            return ReflectionResult(
-                confidence=0.8,
-                missing_information=[],
-                recommended_tools=[],
-                reasoning_summary="Reflection query defaulted due to parsing error.",
+        # Deterministic checks for missing keys or not-available markers
+        lower_summary = data_summary.lower()
+        if (
+            "not available" in lower_summary
+            or "unknown" in lower_summary
+            or "none" in lower_summary
+        ):
+            missing_information.append(
+                f"Detected incomplete metrics/records in {self.name} summary dossier."
             )
+            # Route target tools based on agent type
+            name_lower = self.name.lower()
+            if "financial" in name_lower:
+                recommended_tools.append("financial_analysis")
+            elif "market" in name_lower:
+                recommended_tools.append("news_auditor")
+            elif "tech" in name_lower:
+                recommended_tools.append("tech_stack_detector")
+            elif "hiring" in name_lower:
+                recommended_tools.append("hiring_analysis")
+
+        confidence = 1.0 if not missing_information else 0.75
+        reasoning = (
+            f"Deterministic reflection: Evaluated summary. Gaps: {len(missing_information)}."
+        )
+
+        logger.info(f"[{self.name}] Deterministic reflection confidence: {confidence}")
+        return ReflectionResult(
+            confidence=confidence,
+            missing_information=missing_information,
+            recommended_tools=recommended_tools,
+            reasoning_summary=reasoning,
+        )

@@ -7,8 +7,8 @@ for root, dirs, files in os.walk(FRONTEND_DIR):
     for file in files:
         if file.endswith(".py"):
             file_path = Path(root) / file
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 lines = f.readlines()
             for idx, line in enumerate(lines):
                 if "import frontend" in line or "from frontend" in line:
-                    print(f"{file_path.relative_to(FRONTEND_DIR)}:L{idx+1}: {line.strip()}")
+                    print(f"{file_path.relative_to(FRONTEND_DIR)}:L{idx + 1}: {line.strip()}")
