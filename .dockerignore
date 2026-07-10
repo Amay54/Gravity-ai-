@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.toast/
+.spyderproject
+.settings
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Development / Secrets
+.env
+.env.*
+!.env.example
+!.env.development
+!.env.staging
+!.env.production
+
+# Antigravity/Agentic logs
+.agents/
+brain/
+logs/
+*.log
+
+# Docker/Compose
+docker-compose.yml
+docker/
+
+# Local data & docs
+docs/
+tests/
+README.md
+LICENSE
+CONTRIBUTING.md
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+portfolio/

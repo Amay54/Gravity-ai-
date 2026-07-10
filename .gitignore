@@ -1,0 +1,40 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Environment and secrets files
+.env
+.env.local
+.env.*.local
+.streamlit/secrets.toml
+secrets.toml
+
+# IDE and OS settings
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Docker and local storage files
+logs/
+data/
+*.db
+*.log

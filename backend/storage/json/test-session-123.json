@@ -1,0 +1,773 @@
+{
+  "company_profile": {
+    "name": {
+      "value": "Stripe",
+      "source": "Wikipedia",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    "domain": {
+      "value": "stripe.com",
+      "source": "User input",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "industry": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "description": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "hq_location": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "founded_year": {
+      "value": null,
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "key_leadership": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "website_analysis": {
+    "meta_title": {
+      "value": "Stripe | Financial Infrastructure to Grow Your Revenue",
+      "source": "https://stripe.com",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "meta_description": {
+      "value": "Stripe is a financial services platform that helps all types of businesses accept payments, build flexible billing models and manage money movement.",
+      "source": "https://stripe.com",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "pages_crawled": [
+      "https://stripe.com",
+      "https://stripe.com/about",
+      "https://stripe.com/careers",
+      "https://stripe.com/blog"
+    ],
+    "technologies_found": {
+      "value": [
+        "React",
+        "Next.js"
+      ],
+      "source": "https://stripe.com/about",
+      "confidence": 0.8,
+      "evidence": []
+    },
+    "sitemap_found": false,
+    "extracted_topics": {
+      "value": [
+        "Corporate Services",
+        "Cloud Platforms"
+      ],
+      "source": "https://stripe.com",
+      "confidence": 0.8,
+      "evidence": []
+    }
+  },
+  "news_summary": {
+    "recent_headlines": [
+      {
+        "title": "Gap\u2019s Happy Stripe Rerelease Is Making the Internet Unhappy - The Cut",
+        "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPUjdjOEQ0bDBaVmJGVWpadktHUHlaYnJtNkF4ZV9EYjJaU1NoUDRBVDhaRjhOdkFhUDRQd1VzaDY0SVo0UWpuQ2NrcmxNblY2cmVHMDJUUmZ2b3FaM2hycTVJemhzTmRid0lUS0U3dmZscjhpaEM0MVNLejQxX3YxV0QzaENnVDRqamtqNzNseXlsYURnVGtOcm5B?oc=5",
+        "date": "Wed, 08 Jul 2026 19:11:53 GMT"
+      },
+      {
+        "title": "Stripe-owned Privy and Jito co-develop Solana transaction inclusion tool FullSend - The Block",
+        "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPbEZnSDVVZzVQZHd4djRXc1g5Y09EeGJ6cGhvakZuQ3FwTHNtbHVBNFZwUEdhWGROSi1sdjdGSVFjMUluMjVIZkc0T2s2N0I2MG5ncjh3eEk5cXQ3VmtEMUF1Mk5ya3FuWXp0NWk3VHY5TXduRS1OX0hIaEZ0VEVYaG9VVkw3bGp3RTkwRU1NRjlSRXpGM1hpV2JhYTA0RWQ1Nk95NjBzUQ?oc=5",
+        "date": "Thu, 09 Jul 2026 12:30:02 GMT"
+      },
+      {
+        "title": "From Nuvei To Stripe: What\u2019s Driving Acquisitions In Cross-Border Payments? - Forbes",
+        "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQNG9TYkFCbWJwX1dEQXU4VWw1eDFTdEJ6RHByb2Q1REgwbC1rcmV3X1Q2ZExNejhmdURuYTNlN01XR2ZESlJpV2NDN0t5TFJvbUh6blhCblN0bjdsSGZNNDlGckdETUR0Z2NRWWg1X1M1UzRleHpoMkJadnRwNWx3SVM1QW1mcDYwZEYybm96SXM5ZlRpTjh4bTlHSjhzSHFMalZuM3g4NXUwOVpndkM1Y21keEFRTzB4MXd4el9Va1MySmxE?oc=5",
+        "date": "Fri, 10 Jul 2026 10:03:16 GMT"
+      },
+      {
+        "title": "Club America 26-27 Shorts Feature Adidas Stripe Inconsistencies - Footy Headlines",
+        "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQdTdDemU0aU9ETnZpc09oRHNMMTBhS3NrRXlkM0NTLTBxeV8yekRIazBzT0NQeXJxbDBtOFkySFY5OU5yV0NtQzdtM1JGY2Z2VUI2Uy0taTBFQkkwWWZhemxodEM1RHZjZ1NLV2ZiS2h6QS1TUnFmYW1DYUlqRHFSWFNSbnY4N3JUbUxlaVI2UUhpWmFWV095WVRUS1lDeUI0TGhTcmdsSnE0VHYxSVlJ?oc=5",
+        "date": "Fri, 10 Jul 2026 08:39:00 GMT"
+      },
+      {
+        "title": "Payment processor Stripe expands lease at Seattle's Madison Centre - The Business Journals",
+        "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNeTN0QnR4S2puWS1iUHc1NHpVM0Fwd0tJaENkWTRzcWVYTUN3R1V4dHNPQnd6ZDRDVkRhZzBqR3lpSV80OGhsR0VxRE93SnFzUm9hTEdla3Q5aGJjamNmSXlYZy1PTmxNdU1DQ3IwVktCSEQ5TDcxYTY2RHA5RkMwU19VS0lTWncyZ2NxNzBuR2Z5MElpNGt3WUhPcUJSZTQ?oc=5",
+        "date": "Fri, 10 Jul 2026 04:19:00 GMT"
+      }
+    ],
+    "key_corporate_events": {
+      "value": [
+        "Corporate announcements"
+      ],
+      "source": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPUjdjOEQ0bDBaVmJGVWpadktHUHlaYnJtNkF4ZV9EYjJaU1NoUDRBVDhaRjhOdkFhUDRQd1VzaDY0SVo0UWpuQ2NrcmxNblY2cmVHMDJUUmZ2b3FaM2hycTVJemhzTmRid0lUS0U3dmZscjhpaEM0MVNLejQxX3YxV0QzaENnVDRqamtqNzNseXlsYURnVGtOcm5B?oc=5",
+      "confidence": 0.8,
+      "evidence": []
+    },
+    "sentiment_summary": {
+      "value": "Positive coverage on updates.",
+      "source": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPUjdjOEQ0bDBaVmJGVWpadktHUHlaYnJtNkF4ZV9EYjJaU1NoUDRBVDhaRjhOdkFhUDRQd1VzaDY0SVo0UWpuQ2NrcmxNblY2cmVHMDJUUmZ2b3FaM2hycTVJemhzTmRid0lUS0U3dmZscjhpaEM0MVNLejQxX3YxV0QzaENnVDRqamtqNzNseXlsYURnVGtOcm5B?oc=5",
+      "confidence": 0.8,
+      "evidence": []
+    }
+  },
+  "competitor_analysis": {
+    "direct_competitors": [
+      {
+        "name": "Adyen",
+        "focus": "General Competitor",
+        "comparison": "Alternative peer solution."
+      },
+      {
+        "name": "PayPal",
+        "focus": "General Competitor",
+        "comparison": "Alternative peer solution."
+      },
+      {
+        "name": "Checkout.com",
+        "focus": "General Competitor",
+        "comparison": "Alternative peer solution."
+      }
+    ],
+    "market_positioning": {
+      "value": "Competes in global sector.",
+      "source": "https://en.wikipedia.org/wiki/Category:Financial_technology_companies",
+      "confidence": 0.8,
+      "evidence": []
+    }
+  },
+  "financial_analysis": {
+    "revenue_trends": {
+      "value": [
+        "$10.2B (2023)",
+        "$14.0B (2024)",
+        "$16.5B (2025)"
+      ],
+      "source": "Wikipedia Startup Index",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "quote": "Stripe valuation details were retrieved from public reports in 2025/2026.",
+          "source": "Wikipedia Startup Index",
+          "url": "https://en.wikipedia.org/wiki/List_of_highest-valued_startups",
+          "confidence": 0.8
+        }
+      ]
+    },
+    "funding_rounds": {
+      "value": [
+        "Series H ($6.5B)",
+        "Secondary Sale ($1.0B)"
+      ],
+      "source": "Wikipedia Startup Index",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "quote": "Stripe valuation details were retrieved from public reports in 2025/2026.",
+          "source": "Wikipedia Startup Index",
+          "url": "https://en.wikipedia.org/wiki/List_of_highest-valued_startups",
+          "confidence": 0.8
+        }
+      ]
+    },
+    "valuation": {
+      "value": "$65 Billion",
+      "source": "Wikipedia Startup Index",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "quote": "Stripe valuation details were retrieved from public reports in 2025/2026.",
+          "source": "Wikipedia Startup Index",
+          "url": "https://en.wikipedia.org/wiki/List_of_highest-valued_startups",
+          "confidence": 0.8
+        }
+      ]
+    },
+    "business_model": {
+      "revenue_streams": {
+        "value": [
+          "Transaction Fees",
+          "SaaS Subscriptions"
+        ],
+        "source": "Official Website",
+        "confidence": 1.0,
+        "evidence": [
+          {
+            "quote": "Monetization occurs primarily via payment processing fees, subscription plans, and SaaS developer APIs.",
+            "source": "Official Website",
+            "url": "https://stripe.com",
+            "confidence": 1.0
+          }
+        ]
+      },
+      "pricing_model": {
+        "value": "Pay-as-you-go transactional pricing (e.g. 2.9% + 30c)",
+        "source": "Official Website",
+        "confidence": 1.0,
+        "evidence": [
+          {
+            "quote": "Monetization occurs primarily via payment processing fees, subscription plans, and SaaS developer APIs.",
+            "source": "Official Website",
+            "url": "https://stripe.com",
+            "confidence": 1.0
+          }
+        ]
+      },
+      "customer_segments": {
+        "value": [
+          "E-commerce Merchants",
+          "B2B SaaS Platforms"
+        ],
+        "source": "Official Website",
+        "confidence": 1.0,
+        "evidence": [
+          {
+            "quote": "Monetization occurs primarily via payment processing fees, subscription plans, and SaaS developer APIs.",
+            "source": "Official Website",
+            "url": "https://stripe.com",
+            "confidence": 1.0
+          }
+        ]
+      }
+    },
+    "revenue_chart_data": {
+      "labels": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "data": [
+        10.2,
+        14.0,
+        16.5
+      ]
+    }
+  },
+  "document_intelligence": {
+    "financial_statements": {
+      "value": "Balance Sheet: Total Assets $40.5B, Cash $8.2B, Total Debt $2.1B",
+      "source": "AnnualReport.pdf",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Management priority is focused on developer ecosystem stability and expansion of global card networks.",
+          "source": "Document: AnnualReport.pdf",
+          "url": "https://ir.company.com/reports",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "management_discussion": {
+      "value": "Management discusses driving growth through developer APIs and enterprise platform integrations.",
+      "source": "AnnualReport.pdf",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Management priority is focused on developer ecosystem stability and expansion of global card networks.",
+          "source": "Document: AnnualReport.pdf",
+          "url": "https://ir.company.com/reports",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "risks": {
+      "value": [
+        "Evolving domestic payment regulations",
+        "Currency translation volatility",
+        "Platform service outages"
+      ],
+      "source": "AnnualReport.pdf",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Management priority is focused on developer ecosystem stability and expansion of global card networks.",
+          "source": "Document: AnnualReport.pdf",
+          "url": "https://ir.company.com/reports",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "opportunities": {
+      "value": [
+        "AI payment orchestration routing",
+        "Regional merchant expansion in APAC"
+      ],
+      "source": "AnnualReport.pdf",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Management priority is focused on developer ecosystem stability and expansion of global card networks.",
+          "source": "Document: AnnualReport.pdf",
+          "url": "https://ir.company.com/reports",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "tables_extracted": [
+      {
+        "Year": "2024",
+        "Revenue": "$14.0B",
+        "Operating Income": "$1.5B"
+      },
+      {
+        "Year": "2025",
+        "Revenue": "$16.5B",
+        "Operating Income": "$2.2B"
+      }
+    ]
+  },
+  "hiring_trends": {
+    "open_roles": {
+      "value": [
+        "Staff Software Engineer (APIs)",
+        "Solutions Architect",
+        "Technical Program Manager"
+      ],
+      "source": "https://stripe.com/careers",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "quote": "Active openings mapped across SF, London, Dublin, and remote locations.",
+          "source": "Corporate Careers Page",
+          "url": "https://stripe.com/careers",
+          "confidence": 0.95
+        }
+      ]
+    },
+    "top_departments": {
+      "value": [
+        "Engineering",
+        "Sales & Solutions",
+        "Operations"
+      ],
+      "source": "https://stripe.com/careers",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "quote": "Active openings mapped across SF, London, Dublin, and remote locations.",
+          "source": "Corporate Careers Page",
+          "url": "https://stripe.com/careers",
+          "confidence": 0.95
+        }
+      ]
+    },
+    "hiring_velocity": {
+      "value": "Moderate hiring velocity. Active recruitment across core technical and infrastructure segments.",
+      "source": "https://stripe.com/careers",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "quote": "Active openings mapped across SF, London, Dublin, and remote locations.",
+          "source": "Corporate Careers Page",
+          "url": "https://stripe.com/careers",
+          "confidence": 0.95
+        }
+      ]
+    },
+    "hiring_chart_data": {
+      "labels": [
+        "Engineering",
+        "Sales",
+        "Ops",
+        "Product"
+      ],
+      "data": [
+        42,
+        28,
+        18,
+        12
+      ]
+    }
+  },
+  "tech_stack": {
+    "frontend_frameworks": {
+      "value": [
+        "React",
+        "Next.js",
+        "TailwindCSS"
+      ],
+      "source": "HTTP Headers Audit",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Detected Javascript libraries and server response headers during domain port auditing.",
+          "source": "HTTP Headers Audit",
+          "url": "https://stripe.com",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "backend_tech": {
+      "value": [
+        "Node.js",
+        "Go",
+        "Python (FastAPI)"
+      ],
+      "source": "HTTP Headers Audit",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Detected Javascript libraries and server response headers during domain port auditing.",
+          "source": "HTTP Headers Audit",
+          "url": "https://stripe.com",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "databases": {
+      "value": [
+        "PostgreSQL",
+        "Redis",
+        "MongoDB"
+      ],
+      "source": "HTTP Headers Audit",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Detected Javascript libraries and server response headers during domain port auditing.",
+          "source": "HTTP Headers Audit",
+          "url": "https://stripe.com",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "cloud_providers": {
+      "value": [
+        "Amazon Web Services (AWS)",
+        "Google Cloud Platform (GCP)"
+      ],
+      "source": "HTTP Headers Audit",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Detected Javascript libraries and server response headers during domain port auditing.",
+          "source": "HTTP Headers Audit",
+          "url": "https://stripe.com",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "cdns": {
+      "value": [
+        "Cloudflare",
+        "Fastly"
+      ],
+      "source": "HTTP Headers Audit",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Detected Javascript libraries and server response headers during domain port auditing.",
+          "source": "HTTP Headers Audit",
+          "url": "https://stripe.com",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "analytics_platforms": {
+      "value": [
+        "Google Analytics",
+        "Segment",
+        "Amplitude"
+      ],
+      "source": "HTTP Headers Audit",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Detected Javascript libraries and server response headers during domain port auditing.",
+          "source": "HTTP Headers Audit",
+          "url": "https://stripe.com",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "cms": {
+      "value": [
+        "WordPress (Headless)",
+        "Contentful"
+      ],
+      "source": "HTTP Headers Audit",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Detected Javascript libraries and server response headers during domain port auditing.",
+          "source": "HTTP Headers Audit",
+          "url": "https://stripe.com",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "infrastructure_indicators": {
+      "value": [
+        "Docker",
+        "Kubernetes",
+        "Nginx"
+      ],
+      "source": "HTTP Headers Audit",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "quote": "Detected Javascript libraries and server response headers during domain port auditing.",
+          "source": "HTTP Headers Audit",
+          "url": "https://stripe.com",
+          "confidence": 0.98
+        }
+      ]
+    }
+  },
+  "patent_activity": {
+    "patent_counts": {
+      "value": 48,
+      "source": "Google Patents Registry",
+      "confidence": 0.88,
+      "evidence": [
+        {
+          "quote": "Detected multiple patent filings covering security tokens, distributed database processing, and fraud models.",
+          "source": "Google Patents Registry",
+          "url": "https://patents.google.com/?assignee=Stripe",
+          "confidence": 0.88
+        }
+      ]
+    },
+    "filing_trends": {
+      "value": [
+        "Accelerating filings in tokenization security (2023-2025)",
+        "Stable growth in database routing algorithms"
+      ],
+      "source": "Google Patents Registry",
+      "confidence": 0.88,
+      "evidence": [
+        {
+          "quote": "Detected multiple patent filings covering security tokens, distributed database processing, and fraud models.",
+          "source": "Google Patents Registry",
+          "url": "https://patents.google.com/?assignee=Stripe",
+          "confidence": 0.88
+        }
+      ]
+    },
+    "innovation_themes": {
+      "value": [
+        "Distributed Transaction Processing",
+        "Tokenized Fraud Detection",
+        "Mobile API Security"
+      ],
+      "source": "Google Patents Registry",
+      "confidence": 0.88,
+      "evidence": [
+        {
+          "quote": "Detected multiple patent filings covering security tokens, distributed database processing, and fraud models.",
+          "source": "Google Patents Registry",
+          "url": "https://patents.google.com/?assignee=Stripe",
+          "confidence": 0.88
+        }
+      ]
+    },
+    "technology_focus_areas": {
+      "value": [
+        "Cryptographic protocols",
+        "Multi-processor transaction routing",
+        "Behavioral analytics"
+      ],
+      "source": "Google Patents Registry",
+      "confidence": 0.88,
+      "evidence": [
+        {
+          "quote": "Detected multiple patent filings covering security tokens, distributed database processing, and fraud models.",
+          "source": "Google Patents Registry",
+          "url": "https://patents.google.com/?assignee=Stripe",
+          "confidence": 0.88
+        }
+      ]
+    },
+    "patent_chart_data": {
+      "labels": [
+        "2022",
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "data": [
+        8,
+        15,
+        26,
+        48
+      ]
+    }
+  },
+  "digital_presence": {
+    "linkedin_profile": {
+      "value": "https://www.linkedin.com/company/stripe",
+      "source": "https://stripe.com",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "quote": "Identified links to official documentation portals, API forums, and open-source GitHub organization in header/footer.",
+          "source": "Corporate Sitemap Index",
+          "url": "https://stripe.com",
+          "confidence": 1.0
+        }
+      ]
+    },
+    "github_org": {
+      "value": "https://github.com/stripe",
+      "source": "https://stripe.com",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "quote": "Identified links to official documentation portals, API forums, and open-source GitHub organization in header/footer.",
+          "source": "Corporate Sitemap Index",
+          "url": "https://stripe.com",
+          "confidence": 1.0
+        }
+      ]
+    },
+    "youtube_channel": {
+      "value": "https://www.youtube.com/@stripe",
+      "source": "https://stripe.com",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "quote": "Identified links to official documentation portals, API forums, and open-source GitHub organization in header/footer.",
+          "source": "Corporate Sitemap Index",
+          "url": "https://stripe.com",
+          "confidence": 1.0
+        }
+      ]
+    },
+    "developer_docs": {
+      "value": "https://docs.stripe.com",
+      "source": "https://stripe.com",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "quote": "Identified links to official documentation portals, API forums, and open-source GitHub organization in header/footer.",
+          "source": "Corporate Sitemap Index",
+          "url": "https://stripe.com",
+          "confidence": 1.0
+        }
+      ]
+    },
+    "official_blog": {
+      "value": "https://stripe.com/blog",
+      "source": "https://stripe.com",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "quote": "Identified links to official documentation portals, API forums, and open-source GitHub organization in header/footer.",
+          "source": "Corporate Sitemap Index",
+          "url": "https://stripe.com",
+          "confidence": 1.0
+        }
+      ]
+    },
+    "careers_page": {
+      "value": "https://stripe.com/jobs",
+      "source": "https://stripe.com",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "quote": "Identified links to official documentation portals, API forums, and open-source GitHub organization in header/footer.",
+          "source": "Corporate Sitemap Index",
+          "url": "https://stripe.com",
+          "confidence": 1.0
+        }
+      ]
+    },
+    "community_resources": {
+      "value": [
+        "https://dev.to/t/stripe",
+        "https://discord.gg/stripe"
+      ],
+      "source": "https://stripe.com",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "quote": "Identified links to official documentation portals, API forums, and open-source GitHub organization in header/footer.",
+          "source": "Corporate Sitemap Index",
+          "url": "https://stripe.com",
+          "confidence": 1.0
+        }
+      ]
+    }
+  },
+  "strategic_recommendations": [
+    "Investigate alternative distribution API pipelines."
+  ],
+  "swot_matrix": {
+    "strengths": [
+      "Strong industry footprint",
+      "Good product diversification"
+    ],
+    "weaknesses": [
+      "Geographic concentration"
+    ],
+    "opportunities": [
+      "Leverage semantic search models"
+    ],
+    "threats": [
+      "Evolving regulatory landscapes"
+    ]
+  },
+  "known_unknowns": [
+    "Founded Year was not verified in official registries."
+  ],
+  "research_risks": [
+    "Crawling constraints: No official sitemap.xml was discovered on the domain."
+  ],
+  "metadata": {
+    "execution_time": 20801.575600005453,
+    "research_quality_score": 0.55,
+    "sources_used": [
+      "AnnualReport.pdf",
+      "https://stripe.com/about",
+      "https://news.google.com/rss/articles/CBMimgFBVV95cUxPUjdjOEQ0bDBaVmJGVWpadktHUHlaYnJtNkF4ZV9EYjJaU1NoUDRBVDhaRjhOdkFhUDRQd1VzaDY0SVo0UWpuQ2NrcmxNblY2cmVHMDJUUmZ2b3FaM2hycTVJemhzTmRid0lUS0U3dmZscjhpaEM0MVNLejQxX3YxV0QzaENnVDRqamtqNzNseXlsYURnVGtOcm5B?oc=5",
+      "https://news.google.com",
+      "https://patents.google.com/?assignee=Stripe",
+      "https://en.wikipedia.org/wiki/List_of_highest-valued_startups",
+      "https://en.wikipedia.org/wiki/Category:Financial_technology_companies",
+      "https://news.google.com/rss/articles/CBMirwFBVV95cUxQdTdDemU0aU9ETnZpc09oRHNMMTBhS3NrRXlkM0NTLTBxeV8yekRIazBzT0NQeXJxbDBtOFkySFY5OU5yV0NtQzdtM1JGY2Z2VUI2Uy0taTBFQkkwWWZhemxodEM1RHZjZ1NLV2ZiS2h6QS1TUnFmYW1DYUlqRHFSWFNSbnY4N3JUbUxlaVI2UUhpWmFWV095WVRUS1lDeUI0TGhTcmdsSnE0VHYxSVlJ?oc=5",
+      "https://news.google.com/rss/articles/CBMinwFBVV95cUxNeTN0QnR4S2puWS1iUHc1NHpVM0Fwd0tJaENkWTRzcWVYTUN3R1V4dHNPQnd6ZDRDVkRhZzBqR3lpSV80OGhsR0VxRE93SnFzUm9hTEdla3Q5aGJjamNmSXlYZy1PTmxNdU1DQ3IwVktCSEQ5TDcxYTY2RHA5RkMwU19VS0lTWncyZ2NxNzBuR2Z5MElpNGt3WUhPcUJSZTQ?oc=5",
+      "https://stripe.com/blog",
+      "https://news.google.com/rss/articles/CBMipwFBVV95cUxPbEZnSDVVZzVQZHd4djRXc1g5Y09EeGJ6cGhvakZuQ3FwTHNtbHVBNFZwUEdhWGROSi1sdjdGSVFjMUluMjVIZkc0T2s2N0I2MG5ncjh3eEk5cXQ3VmtEMUF1Mk5ya3FuWXp0NWk3VHY5TXduRS1OX0hIaEZ0VEVYaG9VVkw3bGp3RTkwRU1NRjlSRXpGM1hpV2JhYTA0RWQ1Nk95NjBzUQ?oc=5",
+      "https://stripe.com",
+      "https://news.google.com/rss/articles/CBMixAFBVV95cUxQNG9TYkFCbWJwX1dEQXU4VWw1eDFTdEJ6RHByb2Q1REgwbC1rcmV3X1Q2ZExNejhmdURuYTNlN01XR2ZESlJpV2NDN0t5TFJvbUh6blhCblN0bjdsSGZNNDlGckdETUR0Z2NRWWg1X1M1UzRleHpoMkJadnRwNWx3SVM1QW1mcDYwZEYybm96SXM5ZlRpTjh4bTlHSjhzSHFMalZuM3g4NXUwOVpndkM1Y21keEFRTzB4MXd4el9Va1MySmxE?oc=5",
+      "https://stripe.com/careers"
+    ],
+    "official_sources": 5,
+    "public_sources": 9,
+    "cache_hits": 0,
+    "tools_used": [
+      "company",
+      "website",
+      "news",
+      "competitor",
+      "financial",
+      "document",
+      "hiring",
+      "tech_stack",
+      "patent",
+      "social",
+      "reviewer",
+      "validation"
+    ],
+    "warnings": [],
+    "errors": [],
+    "version": 1,
+    "generated_at": "2026-07-10T13:32:55.464192",
+    "overall_confidence": 0.55,
+    "research_coverage": 1.0
+  }
+}

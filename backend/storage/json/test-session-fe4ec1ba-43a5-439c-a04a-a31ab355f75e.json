@@ -1,0 +1,339 @@
+{
+  "company_profile": {
+    "name": {
+      "value": "TestCompany",
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "domain": {
+      "value": "testcompany.com",
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "industry": {
+      "value": "Retail",
+      "source": "Wikipedia",
+      "confidence": 0.8,
+      "evidence": []
+    },
+    "description": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "hq_location": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "founded_year": {
+      "value": null,
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "key_leadership": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "website_analysis": {
+    "meta_title": {
+      "value": "Test Title",
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "meta_description": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "pages_crawled": [],
+    "technologies_found": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "sitemap_found": false,
+    "extracted_topics": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "news_summary": {
+    "recent_headlines": [],
+    "key_corporate_events": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "sentiment_summary": {
+      "value": "Neutral",
+      "source": "Google News RSS",
+      "confidence": 0.88,
+      "evidence": []
+    }
+  },
+  "competitor_analysis": {
+    "direct_competitors": [],
+    "market_positioning": {
+      "value": "Leader",
+      "source": "LLM Inference",
+      "confidence": 0.4,
+      "evidence": []
+    }
+  },
+  "financial_analysis": {
+    "revenue_trends": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "funding_rounds": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "valuation": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "business_model": {
+      "revenue_streams": {
+        "value": [],
+        "source": "Not Available",
+        "confidence": 0.0,
+        "evidence": []
+      },
+      "pricing_model": {
+        "value": "Not Available",
+        "source": "Not Available",
+        "confidence": 0.0,
+        "evidence": []
+      },
+      "customer_segments": {
+        "value": [],
+        "source": "Not Available",
+        "confidence": 0.0,
+        "evidence": []
+      }
+    },
+    "revenue_chart_data": null
+  },
+  "document_intelligence": {
+    "financial_statements": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "management_discussion": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "risks": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "opportunities": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "tables_extracted": []
+  },
+  "hiring_trends": {
+    "open_roles": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "top_departments": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "hiring_velocity": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "hiring_chart_data": null
+  },
+  "tech_stack": {
+    "frontend_frameworks": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "backend_tech": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "databases": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "cloud_providers": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "cdns": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "analytics_platforms": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "cms": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "infrastructure_indicators": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "patent_activity": {
+    "patent_counts": {
+      "value": null,
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "filing_trends": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "innovation_themes": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "technology_focus_areas": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "patent_chart_data": null
+  },
+  "digital_presence": {
+    "linkedin_profile": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "github_org": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "youtube_channel": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "developer_docs": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "official_blog": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "careers_page": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "community_resources": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "strategic_recommendations": [
+    "Keep testing"
+  ],
+  "swot_matrix": {
+    "strengths": [
+      "Good marketing"
+    ],
+    "weaknesses": [],
+    "opportunities": [],
+    "threats": []
+  },
+  "known_unknowns": [],
+  "research_risks": [],
+  "metadata": {
+    "execution_time": 100.0,
+    "research_quality_score": 0.36,
+    "sources_used": [
+      "testcompany.com",
+      "wikipedia.org"
+    ],
+    "official_sources": 0,
+    "public_sources": 0,
+    "cache_hits": 0,
+    "tools_used": [],
+    "warnings": [],
+    "errors": [],
+    "version": 2,
+    "generated_at": "2026-07-10T08:26:35.325957",
+    "overall_confidence": 0.0,
+    "research_coverage": 0.0
+  }
+}

@@ -1,0 +1,366 @@
+{
+  "company_profile": {
+    "name": {
+      "value": "Stripe",
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "domain": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "industry": {
+      "value": "Fintech",
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "description": {
+      "value": "Stripe is a financial infrastructure platform.",
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "hq_location": {
+      "value": "South San Francisco, CA",
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "founded_year": {
+      "value": 2010,
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "key_leadership": {
+      "value": [
+        "Patrick Collison"
+      ],
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    }
+  },
+  "website_analysis": {
+    "meta_title": {
+      "value": "Stripe - Financial Infrastructure",
+      "source": "Official Website",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    "meta_description": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "pages_crawled": [],
+    "technologies_found": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "sitemap_found": false,
+    "extracted_topics": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "news_summary": {
+    "recent_headlines": [],
+    "key_corporate_events": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "sentiment_summary": {
+      "value": "Positive",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "competitor_analysis": {
+    "direct_competitors": [
+      {
+        "name": "Adyen",
+        "focus": "acquiring",
+        "comparison": "global"
+      }
+    ],
+    "market_positioning": {
+      "value": "Leader",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "financial_analysis": {
+    "revenue_trends": {
+      "value": [
+        "Growing steadily"
+      ],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "funding_rounds": {
+      "value": [
+        "Series I"
+      ],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "valuation": {
+      "value": "$70 Billion",
+      "source": "Wikipedia",
+      "confidence": 0.8,
+      "evidence": []
+    },
+    "business_model": {
+      "revenue_streams": {
+        "value": [],
+        "source": "Not Available",
+        "confidence": 0.0,
+        "evidence": []
+      },
+      "pricing_model": {
+        "value": "Not Available",
+        "source": "Not Available",
+        "confidence": 0.0,
+        "evidence": []
+      },
+      "customer_segments": {
+        "value": [],
+        "source": "Not Available",
+        "confidence": 0.0,
+        "evidence": []
+      }
+    },
+    "revenue_chart_data": null
+  },
+  "document_intelligence": {
+    "financial_statements": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "management_discussion": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "risks": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "opportunities": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "tables_extracted": []
+  },
+  "hiring_trends": {
+    "open_roles": {
+      "value": [
+        "120"
+      ],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "top_departments": {
+      "value": [
+        "Engineering"
+      ],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "hiring_velocity": {
+      "value": "High",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "hiring_chart_data": null
+  },
+  "tech_stack": {
+    "frontend_frameworks": {
+      "value": [
+        "React"
+      ],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "backend_tech": {
+      "value": [
+        "Ruby"
+      ],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "databases": {
+      "value": [
+        "PostgreSQL"
+      ],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "cloud_providers": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "cdns": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "analytics_platforms": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "cms": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "infrastructure_indicators": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "patent_activity": {
+    "patent_counts": {
+      "value": null,
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "filing_trends": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "innovation_themes": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "technology_focus_areas": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "patent_chart_data": null
+  },
+  "digital_presence": {
+    "linkedin_profile": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "github_org": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "youtube_channel": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "developer_docs": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "official_blog": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "careers_page": {
+      "value": "Not Available",
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    },
+    "community_resources": {
+      "value": [],
+      "source": "Not Available",
+      "confidence": 0.0,
+      "evidence": []
+    }
+  },
+  "strategic_recommendations": [
+    "Target APAC"
+  ],
+  "swot_matrix": {
+    "strengths": [
+      "infrastructure"
+    ],
+    "weaknesses": [
+      "fee margins"
+    ],
+    "opportunities": [
+      "APAC market"
+    ],
+    "threats": [
+      "competitor pricing"
+    ]
+  },
+  "known_unknowns": [],
+  "research_risks": [],
+  "metadata": {
+    "execution_time": 120.0,
+    "research_quality_score": 0.9,
+    "sources_used": [
+      "stripe.com"
+    ],
+    "official_sources": 0,
+    "public_sources": 0,
+    "cache_hits": 0,
+    "tools_used": [],
+    "warnings": [],
+    "errors": [],
+    "version": 1,
+    "generated_at": "2026-07-10T08:26:23.023459",
+    "overall_confidence": 0.0,
+    "research_coverage": 0.0
+  }
+}
