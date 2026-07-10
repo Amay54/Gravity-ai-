@@ -1,5 +1,12 @@
 import os
+import sys
 import time
+from pathlib import Path
+
+# Fix import path for Streamlit Cloud standalone deployment
+project_root = str(Path(__file__).resolve().parent.parent)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 import streamlit as st
 

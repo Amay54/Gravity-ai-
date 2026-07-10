@@ -32,7 +32,7 @@ class GravityAPIClient:
                         base_url = st.secrets.get("BACKEND_API_URL") or st.secrets.get(
                             "API_BASE_URL"
                         )
-                except ImportError:
+                except Exception:
                     pass
 
             # 3. Fallback to default local development gateway URL
