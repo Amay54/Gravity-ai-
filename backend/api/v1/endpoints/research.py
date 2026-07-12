@@ -185,6 +185,7 @@ async def start_research(payload: ResearchRequest) -> dict[str, Any]:
         "version": 1,
     }
     await research_repo.create_job(job_data)
+    logger.info("========== BEFORE CREATE TASK ==========")
 
     logger.info(
         f"[Research API] Scheduling background task with asyncio.create_task for Session ID: {session_id}"
@@ -199,6 +200,9 @@ async def start_research(payload: ResearchRequest) -> dict[str, Any]:
             priority=payload.priority,
         )
     )
+    logger.info("========== AFTER CREATE TASK ==========")
+    logger.info(f"Task object: {task}")
+    
     logger.info(
         f"[Research API] Background task successfully spawned: {task} for Session ID: {session_id}"
     )
