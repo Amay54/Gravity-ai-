@@ -202,7 +202,6 @@ async def start_research(payload: ResearchRequest) -> dict[str, Any]:
     )
     logger.info("========== AFTER CREATE TASK ==========")
     logger.info(f"Task object: {task}")
-    
     logger.info(
         f"[Research API] Background task successfully spawned: {task} for Session ID: {session_id}"
     )
