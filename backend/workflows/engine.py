@@ -485,6 +485,7 @@ Generated autonomously by GravityAI on {report.metadata.generated_at.isoformat()
 
 # Agent Graph Node Handlers
 async def plan_node(state: ResearchState) -> dict[str, Any]:
+    logger.info("========== PLAN NODE ENTERED ==========")
     logger.info(
         f"[PLAN-NODE] ====== plan_node ENTERED for '{state['company_name']}' session={state['session_id']} ======"
     )
@@ -497,7 +498,9 @@ async def plan_node(state: ResearchState) -> dict[str, Any]:
         f"[PLAN-NODE] [{state['session_id']}] Step P1: Calling research_repo.add_agent_log()..."
     )
     try:
+          logger.info("========== BEFORE add_agent_log ==========")
         await research_repo.add_agent_log(state["session_id"], "PlannerAgent", msg)
+        logger.info("========== AFTER add_agent_log ==========")
         logger.info(f"[PLAN-NODE] [{state['session_id']}] Step P1: add_agent_log() completed OK.")
     except Exception as e:
         logger.exception(
@@ -512,7 +515,9 @@ async def plan_node(state: ResearchState) -> dict[str, Any]:
     try:
         planner = PlannerAgent()
         prompt = f"Perform research for {state['company_name']} with domain {state['domain']}"
+        logger.info("========== BEFORE PlannerAgent.run ==========")
         result = await planner.run(prompt, transaction_id=state["session_id"])
+        logger.info("========== AFTER PlannerAgent.run ==========")
         logger.info(
             f"[PLAN-NODE] [{state['session_id']}] Step P2: PlannerAgent.run() completed OK. success={result.success}"
         )
