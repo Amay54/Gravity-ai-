@@ -171,7 +171,6 @@ async def execute_graph_background(
 async def start_research(payload: ResearchRequest) -> dict[str, Any]:
     import asyncio
     logger.error("######## RESEARCH ENDPOINT HIT ########")
-
     session_id = str(uuid.uuid4())
     logger.info(f"API request to start research. Session ID: {session_id}")
 
