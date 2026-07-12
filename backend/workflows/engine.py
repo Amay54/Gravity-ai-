@@ -498,7 +498,7 @@ async def plan_node(state: ResearchState) -> dict[str, Any]:
         f"[PLAN-NODE] [{state['session_id']}] Step P1: Calling research_repo.add_agent_log()..."
     )
     try:
-          logger.info("========== BEFORE add_agent_log ==========")
+        logger.info("========== BEFORE add_agent_log ==========")
         await research_repo.add_agent_log(state["session_id"], "PlannerAgent", msg)
         logger.info("========== AFTER add_agent_log ==========")
         logger.info(f"[PLAN-NODE] [{state['session_id']}] Step P1: add_agent_log() completed OK.")
