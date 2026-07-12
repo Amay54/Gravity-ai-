@@ -485,24 +485,56 @@ Generated autonomously by GravityAI on {report.metadata.generated_at.isoformat()
 
 # Agent Graph Node Handlers
 async def plan_node(state: ResearchState) -> dict[str, Any]:
-    logger.info(f"[Workflow] Node 'plan' initiated for '{state['company_name']}'.")
+    logger.info(
+        f"[PLAN-NODE] ====== plan_node ENTERED for '{state['company_name']}' session={state['session_id']} ======"
+    )
     execution_status = list(state.get("execution_status", []))
     msg = "Planner Agent: Initializing Shared Research Context & memory buffers..."
     execution_status.append(msg)
-    await research_repo.add_agent_log(state["session_id"], "PlannerAgent", msg)
 
-    planner = PlannerAgent()
-    prompt = f"Perform research for {state['company_name']} with domain {state['domain']}"
-    result = await planner.run(prompt, transaction_id=state["session_id"])
+    # --- Step P1: Log agent activity to DB ---
+    logger.info(
+        f"[PLAN-NODE] [{state['session_id']}] Step P1: Calling research_repo.add_agent_log()..."
+    )
+    try:
+        await research_repo.add_agent_log(state["session_id"], "PlannerAgent", msg)
+        logger.info(f"[PLAN-NODE] [{state['session_id']}] Step P1: add_agent_log() completed OK.")
+    except Exception as e:
+        logger.exception(
+            f"[PLAN-NODE] [{state['session_id']}] Step P1 FAILED: add_agent_log() raised: {e}"
+        )
+        # Non-fatal: continue execution
+
+    # --- Step P2: Run PlannerAgent ---
+    logger.info(
+        f"[PLAN-NODE] [{state['session_id']}] Step P2: Creating PlannerAgent and calling run()..."
+    )
+    try:
+        planner = PlannerAgent()
+        prompt = f"Perform research for {state['company_name']} with domain {state['domain']}"
+        result = await planner.run(prompt, transaction_id=state["session_id"])
+        logger.info(
+            f"[PLAN-NODE] [{state['session_id']}] Step P2: PlannerAgent.run() completed OK. success={result.success}"
+        )
+    except Exception as e:
+        logger.exception(
+            f"[PLAN-NODE] [{state['session_id']}] Step P2 FAILED: PlannerAgent.run() raised: {e}"
+        )
+        raise
 
     plan_dict = {}
     if result.success:
         try:
             plan_dict = json.loads(result.output_content)
         except Exception:
-            pass
+            logger.warning(
+                f"[PLAN-NODE] [{state['session_id']}] Could not parse plan JSON, using empty dict."
+            )
 
-    # Phase 6 Setup
+    # --- Step P3: Phase 6 Setup ---
+    logger.info(
+        f"[PLAN-NODE] [{state['session_id']}] Step P3: Setting up SharedResearchContext & AgentBus..."
+    )
     context = SharedResearchContext()
     context.session_memory = SessionMemory(session_id=state["session_id"])
     context.planner_memory = PlannerMemory(
@@ -510,10 +542,24 @@ async def plan_node(state: ResearchState) -> dict[str, Any]:
     )
 
     bus = AgentBus()
-    manager = ResearchManagerAgent()
-    await manager.orchestrate_step(
-        bus, "planner", {"objectives": context.planner_memory.objectives}
+
+    # --- Step P4: Research Manager orchestration ---
+    logger.info(
+        f"[PLAN-NODE] [{state['session_id']}] Step P4: Calling ResearchManagerAgent.orchestrate_step()..."
     )
+    try:
+        manager = ResearchManagerAgent()
+        await manager.orchestrate_step(
+            bus, "planner", {"objectives": context.planner_memory.objectives}
+        )
+        logger.info(
+            f"[PLAN-NODE] [{state['session_id']}] Step P4: orchestrate_step() completed OK."
+        )
+    except Exception as e:
+        logger.exception(
+            f"[PLAN-NODE] [{state['session_id']}] Step P4 FAILED: orchestrate_step() raised: {e}"
+        )
+        # Non-fatal: continue execution
 
     timeline = list(state.get("timeline", []))
     timeline.append(
@@ -527,6 +573,7 @@ async def plan_node(state: ResearchState) -> dict[str, Any]:
     review_status_model = ReviewStatus(loops=0, approved=None, comments="")
     context.review_status = review_status_model
 
+    logger.info(f"[PLAN-NODE] [{state['session_id']}] plan_node returning successfully.")
     return {
         "status": "running",
         "plan": plan_dict,

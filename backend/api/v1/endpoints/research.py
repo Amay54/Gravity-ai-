@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from loguru import logger
 from pydantic import BaseModel, Field
 
@@ -45,8 +45,14 @@ async def execute_graph_background(
 ) -> None:
     """
     Worker function executing the LangGraph state machine.
+    Fully instrumented: every await has its own try/except with traceback logging.
     """
-    logger.info(f"[Research API] Starting workflow background thread. ID: {session_id}")
+    import asyncio
+    import traceback
+
+    logger.info(
+        f"[BG-WORKER] ====== execute_graph_background ENTERED. session_id={session_id} ======"
+    )
 
     initial_state: ResearchState = {
         "session_id": session_id,
@@ -70,38 +76,90 @@ async def execute_graph_background(
         "latencies": {},
     }
 
-    # Save initial state
-    cache_manager.set(session_id, initial_state)
-    await research_repo.update_job(session_id, {"status": "running"})
-
+    # --- Step 1: Save initial state to cache ---
+    logger.info(f"[BG-WORKER] [{session_id}] Step 1: Saving initial state to cache...")
     try:
-        logger.info(
-            f"[Research API] execute_graph_background: Resetting Gemini counter for ID: {session_id}"
-        )
-        # Reset Gemini API calls session counter
-        GeminiLLM.reset_session_counter()
-
-        logger.info(
-            f"[Research API] execute_graph_background: Invoking workflow graph for ID: {session_id}"
-        )
-        # Run graph
-        final_state = await workflow_engine.graph.ainvoke(initial_state)
-
-        logger.info(
-            f"[Research API] execute_graph_background: Graph invoked successfully for ID: {session_id}"
-        )
-        # Update cache with final state
-        cache_manager.set(session_id, final_state)
+        cache_manager.set(session_id, initial_state)
+        logger.info(f"[BG-WORKER] [{session_id}] Step 1: cache_manager.set() completed OK.")
     except Exception as e:
-        logger.error(
-            f"[Research API] execute_graph_background: Exception raised during execution: {e}",
-            exc_info=True,
+        logger.exception(
+            f"[BG-WORKER] [{session_id}] Step 1 FAILED: cache_manager.set() raised: {e}"
+        )
+        return
+
+    # --- Step 2: Update job status to 'running' in DB ---
+    logger.info(
+        f"[BG-WORKER] [{session_id}] Step 2: Calling research_repo.update_job(status=running)..."
+    )
+    try:
+        await research_repo.update_job(session_id, {"status": "running"})
+        logger.info(f"[BG-WORKER] [{session_id}] Step 2: research_repo.update_job() completed OK.")
+    except Exception as e:
+        logger.exception(
+            f"[BG-WORKER] [{session_id}] Step 2 FAILED: research_repo.update_job() raised: {e}"
         )
         initial_state["status"] = "failed"
-        initial_state["errors"].append(str(e))
-        initial_state["execution_status"].append(f"CRITICAL ERROR: {str(e)}")
+        initial_state["errors"].append(f"update_job failed: {e}")
+        initial_state["execution_status"].append(f"CRITICAL ERROR at update_job: {e}")
         cache_manager.set(session_id, initial_state)
-        await research_repo.update_job(session_id, {"status": "failed"})
+        return
+
+    # --- Step 3: Reset Gemini session counter ---
+    logger.info(f"[BG-WORKER] [{session_id}] Step 3: Resetting GeminiLLM session counter...")
+    try:
+        GeminiLLM.reset_session_counter()
+        logger.info(
+            f"[BG-WORKER] [{session_id}] Step 3: GeminiLLM.reset_session_counter() completed OK."
+        )
+    except Exception as e:
+        logger.exception(
+            f"[BG-WORKER] [{session_id}] Step 3 FAILED: reset_session_counter() raised: {e}"
+        )
+        initial_state["status"] = "failed"
+        initial_state["errors"].append(f"reset_session_counter failed: {e}")
+        initial_state["execution_status"].append(f"CRITICAL ERROR at reset_session_counter: {e}")
+        cache_manager.set(session_id, initial_state)
+        return
+
+    # --- Step 4: Invoke LangGraph workflow with timeout ---
+    logger.info(
+        f"[BG-WORKER] [{session_id}] Step 4: Invoking workflow_engine.graph.ainvoke() with 120s timeout..."
+    )
+    try:
+        final_state = await asyncio.wait_for(
+            workflow_engine.graph.ainvoke(initial_state),
+            timeout=120.0,
+        )
+        logger.info(
+            f"[BG-WORKER] [{session_id}] Step 4: graph.ainvoke() completed OK. Updating cache with final state."
+        )
+        cache_manager.set(session_id, final_state)
+    except TimeoutError:
+        error_msg = "LangGraph workflow timed out after 120 seconds"
+        logger.error(f"[BG-WORKER] [{session_id}] Step 4 TIMEOUT: {error_msg}")
+        initial_state["status"] = "failed"
+        initial_state["errors"].append(error_msg)
+        initial_state["execution_status"].append(f"CRITICAL ERROR: {error_msg}")
+        cache_manager.set(session_id, initial_state)
+        try:
+            await research_repo.update_job(session_id, {"status": "failed"})
+        except Exception:
+            logger.exception(
+                f"[BG-WORKER] [{session_id}] Failed to update job status after timeout."
+            )
+    except Exception as e:
+        tb = traceback.format_exc()
+        logger.error(f"[BG-WORKER] [{session_id}] Step 4 FAILED: graph.ainvoke() raised: {e}\n{tb}")
+        initial_state["status"] = "failed"
+        initial_state["errors"].append(str(e))
+        initial_state["execution_status"].append(f"CRITICAL ERROR: {e}")
+        cache_manager.set(session_id, initial_state)
+        try:
+            await research_repo.update_job(session_id, {"status": "failed"})
+        except Exception:
+            logger.exception(
+                f"[BG-WORKER] [{session_id}] Failed to update job status after graph error."
+            )
 
 
 @router.post(
