@@ -206,6 +206,7 @@ async def start_research(payload: ResearchRequest) -> dict[str, Any]:
             scope=payload.scope,
             priority=payload.priority,
         )
+    )
     # Store in global registry to prevent GC on Python 3.12+
     ACTIVE_TASKS[session_id] = task
     logger.info("========== AFTER CREATE TASK ==========")
