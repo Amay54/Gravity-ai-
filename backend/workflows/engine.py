@@ -608,6 +608,11 @@ async def plan_node(state: ResearchState) -> dict[str, Any]:
 
     execution_status.append("Planning Complete")
     logger.info(f"[PLAN-NODE] [{state['session_id']}] plan_node returning successfully.")
+    _plan_duration = result.metrics.get("duration_ms", 0.0)
+    logger.info(
+        f"[PLANNER_STAGE] session_id={state['session_id']} company_name={state['company_name']} "
+        f"duration_ms={_plan_duration:.2f} success={result.success} error={result.error if not result.success else 'None'}"
+    )
     result_dict = {
         "status": "running",
         "plan": plan_dict,
@@ -687,8 +692,17 @@ async def company_node(state: ResearchState) -> dict[str, Any]:
         "execution_status": execution_status,
         "latencies": latencies,
     }
-    _node_dur = (time.perf_counter() - _node_start) * 1000
-    logger.info(f"[Workflow] Node 'company' FINISHED in {_node_dur:.0f}ms.")
+    missing_fields = []
+    for f in ["name", "industry", "description", "hq_location", "founded_year", "key_leadership"]:
+        val = getattr(context.company_profile, f, None)
+        if not val or val.value == "Not Available" or val.value is None or val.value == []:
+            missing_fields.append(f)
+    _comp_dur = (time.perf_counter() - _node_start) * 1000
+    logger.info(
+        f"[COMPANY_PROFILE_STAGE] session_id={state['session_id']} company_name={state['company_name']} "
+        f"duration_ms={_comp_dur:.2f} missing_fields={missing_fields} success={response.success} error={response.error}"
+    )
+    logger.info(f"[Workflow] Node 'company' FINISHED in {_comp_dur:.0f}ms.")
     _update_progress(state["session_id"], {**state, **result_dict}, "Company Research Complete")
     return result_dict
 
@@ -770,12 +784,16 @@ async def news_node(state: ResearchState) -> dict[str, Any]:
     await manager.orchestrate_step(bus, "market", {"company_name": state["company_name"]})
 
     agent = MarketAnalystAgent()
-    # Read manager directives
-    last_msg = bus.messages[-1]
+    # Read manager directives safely by searching for recipient
+    last_msg = next((m for m in reversed(bus.messages) if m.recipient == agent.name), None)
+    if not last_msg:
+        last_msg = bus.messages[-1]
     await agent.handle_message(bus, last_msg)
 
-    # Process return message
-    agent_msg = bus.messages[-1]
+    # Process return message safely by searching for sender
+    agent_msg = next((m for m in reversed(bus.messages) if m.sender == agent.name), None)
+    if not agent_msg:
+        agent_msg = bus.messages[-1]
     collected = agent_msg.content
 
     context = state["shared_context"].model_copy(deep=True)
@@ -897,10 +915,16 @@ async def financial_node(state: ResearchState) -> dict[str, Any]:
     )
 
     agent = FinancialAnalystAgent()
-    last_msg = bus.messages[-1]
+    # Read manager directives safely by searching for recipient
+    last_msg = next((m for m in reversed(bus.messages) if m.recipient == agent.name), None)
+    if not last_msg:
+        last_msg = bus.messages[-1]
     await agent.handle_message(bus, last_msg)
 
-    agent_msg = bus.messages[-1]
+    # Process return message safely by searching for sender
+    agent_msg = next((m for m in reversed(bus.messages) if m.sender == agent.name), None)
+    if not agent_msg:
+        agent_msg = bus.messages[-1]
     collected = agent_msg.content
 
     context = state["shared_context"].model_copy(deep=True)
@@ -1036,10 +1060,16 @@ async def hiring_node(state: ResearchState) -> dict[str, Any]:
     )
 
     agent = HiringAnalystAgent()
-    last_msg = bus.messages[-1]
+    # Read manager directives safely by searching for recipient
+    last_msg = next((m for m in reversed(bus.messages) if m.recipient == agent.name), None)
+    if not last_msg:
+        last_msg = bus.messages[-1]
     await agent.handle_message(bus, last_msg)
 
-    agent_msg = bus.messages[-1]
+    # Process return message safely by searching for sender
+    agent_msg = next((m for m in reversed(bus.messages) if m.sender == agent.name), None)
+    if not agent_msg:
+        agent_msg = bus.messages[-1]
     collected = agent_msg.content
 
     context = state["shared_context"].model_copy(deep=True)
@@ -1108,10 +1138,16 @@ async def tech_stack_node(state: ResearchState) -> dict[str, Any]:
     )
 
     agent = TechnologyAnalystAgent()
-    last_msg = bus.messages[-1]
+    # Read manager directives safely by searching for recipient
+    last_msg = next((m for m in reversed(bus.messages) if m.recipient == agent.name), None)
+    if not last_msg:
+        last_msg = bus.messages[-1]
     await agent.handle_message(bus, last_msg)
 
-    agent_msg = bus.messages[-1]
+    # Process return message safely by searching for sender
+    agent_msg = next((m for m in reversed(bus.messages) if m.sender == agent.name), None)
+    if not agent_msg:
+        agent_msg = bus.messages[-1]
     collected = agent_msg.content
 
     context = state["shared_context"].model_copy(deep=True)
@@ -1542,9 +1578,27 @@ async def synthesis_node(state: ResearchState) -> dict[str, Any]:
         metadata=metadata,
     )
 
+    _synth_dur = (time.perf_counter() - _node_start) * 1000
+    logger.info(
+        f"[SYNTHESIS_STAGE] session_id={state['session_id']} company_name={state['company_name']} "
+        f"duration_ms={_synth_dur:.2f} success=True error=None"
+    )
+
+    _serial_start = time.perf_counter()
+    from backend.utils.helpers import normalize_all_urls_in_dict
+    report_dict = final_report.model_dump(mode="json")
+    normalized_report_dict = normalize_all_urls_in_dict(report_dict)
+    final_report = ResearchReport(**normalized_report_dict)
+
     # Render report markdown layout
     report_markdown = generate_report_markdown(final_report, state["company_name"])
+    _serial_dur = (time.perf_counter() - _serial_start) * 1000
+    logger.info(
+        f"[SERIALIZATION_STAGE] session_id={state['session_id']} company_name={state['company_name']} "
+        f"duration_ms={_serial_dur:.2f} success=True error=None"
+    )
 
+    _persist_start = time.perf_counter()
     # Save report version using ReportRepository
     saved_report = await report_repo.create_report_version(
         session_id=state["session_id"],
@@ -1562,6 +1616,11 @@ async def synthesis_node(state: ResearchState) -> dict[str, Any]:
             "overall_quality": quality_score,
             "version": saved_report.get("version", 1),
         },
+    )
+    _persist_dur = (time.perf_counter() - _persist_start) * 1000
+    logger.info(
+        f"[PERSISTENCE_STAGE] session_id={state['session_id']} company_name={state['company_name']} "
+        f"duration_ms={_persist_dur:.2f} success=True error=None"
     )
 
     collected_data = {

@@ -363,25 +363,52 @@ async def delete_session(session_id: str) -> dict[str, Any]:
     description="Enables conversational follow-up. Invokes tools dynamically if new facts are requested.",
 )
 async def chat_followup(session_id: str, payload: ChatPayload) -> dict[str, Any]:
+    import time
+    _chat_start = time.perf_counter()
     prompt = payload.message
 
+    if not session_id or len(session_id.strip()) == 0:
+        raise HTTPException(status_code=400, detail="Invalid session_id.")
+
     # 1. Audit user message
-    await research_repo.add_chat_message(session_id, "user", prompt)
+    try:
+        await research_repo.add_chat_message(session_id, "user", prompt)
+    except Exception as dbe:
+        logger.error(f"[Chat API] Database lookup/insert failed for add_chat_message: {dbe}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Research session database audit failed: {str(dbe)}",
+        )
 
     report_data = None
-    state = cache_manager.get(session_id)
-    if state:
-        report_data = state.get("collected_data", {}).get("report")
-    else:
-        # Load from database
-        reports = await report_repo.get_reports_for_session(session_id)
-        if reports:
-            report_data = reports[0]["report_json"]
+    try:
+        state = cache_manager.get(session_id)
+        if state:
+            report_data = state.get("collected_data", {}).get("report")
+        else:
+            # Load from database
+            reports = await report_repo.get_reports_for_session(session_id)
+            if reports:
+                report_data = reports[0]["report_json"]
+    except Exception as ree:
+        logger.error(f"[Chat API] Failed to fetch report from repo: {ree}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to query database for session report: {str(ree)}",
+        )
 
     if not report_data:
         raise HTTPException(status_code=400, detail="Research report is not yet compiled.")
 
-    report = ResearchReport(**report_data)
+    try:
+        report = ResearchReport(**report_data)
+    except Exception as pe:
+        logger.error(f"[Chat API] Pydantic validation failed for report data: {pe}")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Failed to deserialize compiled research dossier: {str(pe)}",
+        )
+
     company_name = report.company_profile.name.value
     domain = report.company_profile.domain.value
 
@@ -406,37 +433,41 @@ async def chat_followup(session_id: str, payload: ChatPayload) -> dict[str, Any]
     try:
         tool_needed = await llm.generate(decision_prompt)
         tool_needed = tool_needed.strip()
-    except Exception:
-        pass
+    except Exception as le:
+        logger.warning(f"[Chat API] Decision LLM call failed: {le}")
 
     # If a specific tool is needed, run it
     fresh_context = ""
     if tool_needed in ["news_auditor", "website_crawler"]:
         logger.info(f"[Chat API] Re-triggering tool '{tool_needed}' to fetch fresh details.")
-        if tool_needed == "news_auditor":
-            res = await tool_registry.execute_tool("news_auditor", company_name=company_name)
-            fresh_context = f"Fresh news headlines scraped: {res.data}"
-            await research_repo.add_tool_log(
-                job_id=session_id,
-                tool_name="news_auditor",
-                status="success",
-                execution_time=res.execution_time,
-                confidence=res.confidence,
-                cache_hit=False,
-                source_count=len(res.sources),
-            )
-        elif tool_needed == "website_crawler":
-            res = await tool_registry.execute_tool("website_crawler", domain=domain)
-            fresh_context = f"Fresh website details crawled: {res.data}"
-            await research_repo.add_tool_log(
-                job_id=session_id,
-                tool_name="website_crawler",
-                status="success",
-                execution_time=res.execution_time,
-                confidence=res.confidence,
-                cache_hit=False,
-                source_count=len(res.sources),
-            )
+        try:
+            if tool_needed == "news_auditor":
+                res = await tool_registry.execute_tool("news_auditor", company_name=company_name)
+                fresh_context = f"Fresh news headlines scraped: {res.data}"
+                await research_repo.add_tool_log(
+                    job_id=session_id,
+                    tool_name="news_auditor",
+                    status="success",
+                    execution_time=res.execution_time,
+                    confidence=res.confidence,
+                    cache_hit=False,
+                    source_count=len(res.sources),
+                )
+            elif tool_needed == "website_crawler":
+                res = await tool_registry.execute_tool("website_crawler", domain=domain)
+                fresh_context = f"Fresh website details crawled: {res.data}"
+                await research_repo.add_tool_log(
+                    job_id=session_id,
+                    tool_name="website_crawler",
+                    status="success",
+                    execution_time=res.execution_time,
+                    confidence=res.confidence,
+                    cache_hit=False,
+                    source_count=len(res.sources),
+                )
+        except Exception as te:
+            logger.error(f"[Chat API] Tool execution failed: {te}")
+            fresh_context = f"Attempted to fetch fresh details using {tool_needed} but the tool execution failed: {str(te)}."
 
     # Formulate answer using the dossier report as context
     answer_prompt = f"""
@@ -456,11 +487,20 @@ async def chat_followup(session_id: str, payload: ChatPayload) -> dict[str, Any]
         answer = f"I encountered an error reasoning about that question: {str(e)}"
 
     # Audit assistant response
-    await research_repo.add_chat_message(
-        session_id=session_id,
-        role="assistant",
-        message=answer,
-        tool_used=tool_needed if tool_needed != "None" else None,
+    try:
+        await research_repo.add_chat_message(
+            session_id=session_id,
+            role="assistant",
+            message=answer,
+            tool_used=tool_needed if tool_needed != "None" else None,
+        )
+    except Exception as ae:
+        logger.error(f"[Chat API] Database lookup/insert failed for add_chat_message assistant reply: {ae}")
+
+    _chat_dur = (time.perf_counter() - _chat_start) * 1000
+    logger.info(
+        f"[CHAT_STAGE] session_id={session_id} company_name={company_name} "
+        f"duration_ms={_chat_dur:.2f} success=True error=None"
     )
 
     return {"response": answer, "tool_triggered": tool_needed if tool_needed != "None" else None}

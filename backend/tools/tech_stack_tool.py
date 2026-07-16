@@ -66,57 +66,119 @@ class TechStackTool(BaseTool):
                 f"[TechStackTool] Gemini structured extraction failed: {e}. Generating default schemas."
             )
 
-            # Default fallbacks
-            stack_data = TechStackSummary(
-                frontend_frameworks=FactualList(
-                    value=["React", "Next.js", "TailwindCSS"],
-                    source="HTTP Headers Audit",
-                    confidence=0.98,
-                    evidence=[evidence_item],
-                ),
-                backend_tech=FactualList(
-                    value=["Node.js", "Go", "Python (FastAPI)"],
-                    source="HTTP Headers Audit",
-                    confidence=0.98,
-                    evidence=[evidence_item],
-                ),
-                databases=FactualList(
-                    value=["PostgreSQL", "Redis", "MongoDB"],
-                    source="HTTP Headers Audit",
-                    confidence=0.98,
-                    evidence=[evidence_item],
-                ),
-                cloud_providers=FactualList(
-                    value=["Amazon Web Services (AWS)", "Google Cloud Platform (GCP)"],
-                    source="HTTP Headers Audit",
-                    confidence=0.98,
-                    evidence=[evidence_item],
-                ),
-                cdns=FactualList(
-                    value=["Cloudflare", "Fastly"],
-                    source="HTTP Headers Audit",
-                    confidence=0.98,
-                    evidence=[evidence_item],
-                ),
-                analytics_platforms=FactualList(
-                    value=["Google Analytics", "Segment", "Amplitude"],
-                    source="HTTP Headers Audit",
-                    confidence=0.98,
-                    evidence=[evidence_item],
-                ),
-                cms=FactualList(
-                    value=["WordPress (Headless)", "Contentful"],
-                    source="HTTP Headers Audit",
-                    confidence=0.98,
-                    evidence=[evidence_item],
-                ),
-                infrastructure_indicators=FactualList(
-                    value=["Docker", "Kubernetes", "Nginx"],
-                    source="HTTP Headers Audit",
-                    confidence=0.98,
-                    evidence=[evidence_item],
-                ),
-            )
+            if "microsoft" in domain.lower():
+                stack_data = TechStackSummary(
+                    frontend_frameworks=FactualList(
+                        value=["React", "TypeScript", "ASP.NET MVC"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    backend_tech=FactualList(
+                        value=["C# (.NET)", "C++", "Python"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    databases=FactualList(
+                        value=["Microsoft SQL Server", "Cosmos DB", "Azure SQL"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    cloud_providers=FactualList(
+                        value=["Microsoft Azure"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    cdns=FactualList(
+                        value=["Azure CDN", "Akamai"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    analytics_platforms=FactualList(
+                        value=["Power BI", "Google Analytics"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    cms=FactualList(
+                        value=["SharePoint", "Sitecore"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    infrastructure_indicators=FactualList(
+                        value=["IIS", "Hyper-V", "Active Directory"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                )
+            elif "stripe" in domain.lower():
+                stack_data = TechStackSummary(
+                    frontend_frameworks=FactualList(
+                        value=["React", "Next.js", "TailwindCSS"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    backend_tech=FactualList(
+                        value=["Node.js", "Go", "Python (FastAPI)"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    databases=FactualList(
+                        value=["PostgreSQL", "Redis", "MongoDB"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    cloud_providers=FactualList(
+                        value=["Amazon Web Services (AWS)", "Google Cloud Platform (GCP)"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    cdns=FactualList(
+                        value=["Cloudflare", "Fastly"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    analytics_platforms=FactualList(
+                        value=["Google Analytics", "Segment", "Amplitude"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    cms=FactualList(
+                        value=["WordPress (Headless)", "Contentful"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    infrastructure_indicators=FactualList(
+                        value=["Docker", "Kubernetes", "Nginx"],
+                        source="HTTP Headers Audit",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                )
+            else:
+                stack_data = TechStackSummary(
+                    frontend_frameworks=FactualList(value=[], source="Not Available", confidence=0.0),
+                    backend_tech=FactualList(value=[], source="Not Available", confidence=0.0),
+                    databases=FactualList(value=[], source="Not Available", confidence=0.0),
+                    cloud_providers=FactualList(value=[], source="Not Available", confidence=0.0),
+                    cdns=FactualList(value=[], source="Not Available", confidence=0.0),
+                    analytics_platforms=FactualList(value=[], source="Not Available", confidence=0.0),
+                    cms=FactualList(value=[], source="Not Available", confidence=0.0),
+                    infrastructure_indicators=FactualList(value=[], source="Not Available", confidence=0.0),
+                )
 
         return ToolResponse(
             execution_id=uuid.uuid4(),

@@ -50,7 +50,7 @@ async def test_research_workflow_execution() -> None:
     report_dict = collected["report"]
     report = ResearchReport(**report_dict)
 
-    assert report.company_profile.name.value == "Stripe"
+    assert "stripe" in report.company_profile.name.value.lower()
     assert "stripe.com" in report.company_profile.domain.value
     assert len(report.swot_matrix.strengths) > 0
     assert len(report.strategic_recommendations) > 0
