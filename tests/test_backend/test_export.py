@@ -240,3 +240,49 @@ def test_export_endpoints_missing_session() -> None:
         },
     )
     assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_download_endpoints_success(mock_research_data) -> None:
+    session_id = "test-session-download-123"
+    ctx, report = mock_research_data
+    
+    from backend.repositories.report_repository import ReportRepository
+    report_repo = ReportRepository()
+    
+    await report_repo.create_report_version(
+        session_id=session_id,
+        report_json=report.model_dump(mode="json"),
+        report_markdown="Mock report markdown",
+    )
+
+    # Test PDF download GET route
+    response_pdf = client.get(f"/api/v1/export/pdf/{session_id}")
+    assert response_pdf.status_code == 200
+    assert response_pdf.headers["content-type"] == "application/pdf"
+    assert "attachment" in response_pdf.headers["content-disposition"]
+    assert len(response_pdf.content) > 0
+
+    # Test DOCX download GET route
+    response_docx = client.get(f"/api/v1/export/docx/{session_id}")
+    assert response_docx.status_code == 200
+    assert "wordprocessingml" in response_docx.headers["content-type"]
+    assert "attachment" in response_docx.headers["content-disposition"]
+    assert len(response_docx.content) > 0
+
+    # Test PPTX download GET route
+    response_pptx = client.get(f"/api/v1/export/pptx/{session_id}")
+    assert response_pptx.status_code == 200
+    assert "presentation" in response_pptx.headers["content-type"]
+    assert "attachment" in response_pptx.headers["content-disposition"]
+    assert len(response_pptx.content) > 0
+
+    # Test nonexistent session 404
+    response_404 = client.get("/api/v1/export/pdf/nonexistent-session-download-id")
+    assert response_404.status_code == 404
+
+    # Clean up generated files
+    for fmt in ["pdf", "docx", "pptx"]:
+        path = f"backend/storage/{fmt}/{session_id}_v1.{fmt}"
+        if os.path.exists(path):
+            os.remove(path)

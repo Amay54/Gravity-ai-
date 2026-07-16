@@ -40,7 +40,7 @@ class DOCXGenerator:
     ) -> str:
         doc_dir = "backend/storage/docx"
         os.makedirs(doc_dir, exist_ok=True)
-        docx_path = os.path.join(doc_dir, f"{session_id}.docx")
+        docx_path = os.path.join(doc_dir, f"{session_id}_v{version}.docx")
 
         doc = Document()
 

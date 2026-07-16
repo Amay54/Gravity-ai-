@@ -318,10 +318,10 @@ if st.session_state.research_completed and st.session_state.report:
     # Export download and version management row
     col_actions, col_version_sel = st.columns([3, 1])
     with col_actions:
-        # Fetch file links from metadata properties or DB report rows
-        pdf_url = report.get("pdf_url") or "#"
-        docx_url = report.get("docx_url") or "#"
-        pptx_url = report.get("pptx_url") or "#"
+        # Construct absolute backend GET download links
+        pdf_url = f"{api_client.base_url}/api/v1/export/pdf/{st.session_state.session_id}"
+        docx_url = f"{api_client.base_url}/api/v1/export/docx/{st.session_state.session_id}"
+        pptx_url = f"{api_client.base_url}/api/v1/export/pptx/{st.session_state.session_id}"
 
         # Streamlit link buttons
         st.link_button("Download PDF Report", pdf_url, type="primary")
@@ -750,19 +750,21 @@ if st.session_state.research_completed and st.session_state.report:
                     with st.expander(f"📦 Version v{v} (Compiled: {parsed_date})"):
                         col_dl1, col_dl2, col_dl3 = st.columns(3)
                         with col_dl1:
-                            if exp.get("pdf_url"):
-                                st.link_button(
-                                    "Download PDF", exp.get("pdf_url"), use_container_width=True
-                                )
+                            st.link_button(
+                                "Download PDF",
+                                f"{api_client.base_url}/api/v1/export/pdf/{st.session_state.session_id}?version={v}",
+                                use_container_width=True
+                            )
                             if exp.get("html_url"):
                                 st.link_button(
                                     "Download HTML", exp.get("html_url"), use_container_width=True
                                 )
                         with col_dl2:
-                            if exp.get("docx_url"):
-                                st.link_button(
-                                    "Download DOCX", exp.get("docx_url"), use_container_width=True
-                                )
+                            st.link_button(
+                                "Download DOCX",
+                                f"{api_client.base_url}/api/v1/export/docx/{st.session_state.session_id}?version={v}",
+                                use_container_width=True
+                            )
                             if exp.get("markdown_url"):
                                 st.link_button(
                                     "Download Markdown",
@@ -770,10 +772,11 @@ if st.session_state.research_completed and st.session_state.report:
                                     use_container_width=True,
                                 )
                         with col_dl3:
-                            if exp.get("pptx_url"):
-                                st.link_button(
-                                    "Download PPTX", exp.get("pptx_url"), use_container_width=True
-                                )
+                            st.link_button(
+                                "Download PPTX",
+                                f"{api_client.base_url}/api/v1/export/pptx/{st.session_state.session_id}?version={v}",
+                                use_container_width=True
+                            )
         except Exception as e:
             st.error(f"Failed to fetch export history: {e}")
 

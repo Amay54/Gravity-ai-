@@ -139,7 +139,7 @@ class PDFGenerator:
         """
         pdf_dir = "backend/storage/pdf"
         os.makedirs(pdf_dir, exist_ok=True)
-        pdf_path = os.path.join(pdf_dir, f"{session_id}.pdf")
+        pdf_path = os.path.join(pdf_dir, f"{session_id}_v{version}.pdf")
 
         doc = SimpleDocTemplate(
             pdf_path, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=54, bottomMargin=54

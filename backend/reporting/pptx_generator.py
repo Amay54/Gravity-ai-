@@ -39,7 +39,7 @@ class PPTXGenerator:
     ) -> str:
         ppt_dir = "backend/storage/pptx"
         os.makedirs(ppt_dir, exist_ok=True)
-        pptx_path = os.path.join(ppt_dir, f"{session_id}.pptx")
+        pptx_path = os.path.join(ppt_dir, f"{session_id}_v{version}.pptx")
 
         prs = Presentation()
         primary_rgb, secondary_rgb = cls._get_theme_rgb(theme)
