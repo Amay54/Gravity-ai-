@@ -30,8 +30,9 @@ class SocialTool(BaseTool):
     tags: list[str] = ["social-presence", "digital-footprint"]
 
     async def _run(self, **kwargs: Any) -> ToolResponse:
+        from backend.utils.helpers import sanitize_domain
         company_name = kwargs.get("company_name", "")
-        domain = kwargs.get("domain", "")
+        domain = sanitize_domain(kwargs.get("domain", ""))
         logger.info(f"[SocialTool] Querying digital profiles for '{company_name}' ({domain}).")
 
         target_url = f"https://{domain}"

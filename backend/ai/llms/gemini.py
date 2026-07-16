@@ -3,6 +3,7 @@ import inspect
 from collections.abc import AsyncGenerator
 from datetime import datetime
 from typing import Any
+import contextvars
 
 from google import genai
 from google.genai import types
@@ -11,6 +12,8 @@ from pydantic import BaseModel
 
 from backend.ai.llms.base_llm import BaseLLM
 from backend.core.config import settings
+
+_session_calls_var = contextvars.ContextVar("session_calls_count", default=0)
 
 
 class GeminiQuotaExceededError(Exception):
@@ -26,7 +29,6 @@ class GeminiLLM(BaseLLM):
     Includes session execution request caps, exponential backoffs, and caller audit logging.
     """
 
-    _session_calls_count: int = 0
     MAX_GEMINI_CALLS_PER_SESSION: int = 15
     PER_CALL_TIMEOUT: float = 45.0  # seconds per Gemini API call
 
@@ -37,7 +39,8 @@ class GeminiLLM(BaseLLM):
     @classmethod
     def reset_session_counter(cls) -> None:
         """Resets the global session model invocation counter."""
-        cls._session_calls_count = 0
+        _session_calls_var.set(0)
+        logger.info("[Gemini Audit] Reset session request counter context variable.")
         logger.info("[Gemini Audit] Reset session request counter.")
 
     def _get_client(self) -> genai.Client:
@@ -73,15 +76,17 @@ class GeminiLLM(BaseLLM):
 
     async def _execute_with_backoff_and_limit(self, call_fn: Any, *args: Any, **kwargs: Any) -> Any:
         """Enforces request limits, logs telemetry, and retries 429/timeout errors using backoff."""
-        if GeminiLLM._session_calls_count >= GeminiLLM.MAX_GEMINI_CALLS_PER_SESSION:
+        current_calls = _session_calls_var.get()
+        if current_calls >= self.MAX_GEMINI_CALLS_PER_SESSION:
             msg = (
-                f"Gemini API request cap reached ({GeminiLLM.MAX_GEMINI_CALLS_PER_SESSION} calls). "
+                f"Gemini API request cap reached ({self.MAX_GEMINI_CALLS_PER_SESSION} calls). "
                 f"Aborting session execution."
             )
             logger.error(f"[Gemini Audit] {msg}")
             raise GeminiQuotaExceededError(msg)
 
-        GeminiLLM._session_calls_count += 1
+        current_calls += 1
+        _session_calls_var.set(current_calls)
 
         agent_name = self._get_caller_agent()
         timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -92,7 +97,7 @@ class GeminiLLM(BaseLLM):
 
         for attempt in range(max_retries + 1):
             logger.info(
-                f"[Gemini Audit] Request #{GeminiLLM._session_calls_count} | "
+                f"[Gemini Audit] Request #{current_calls} | "
                 f"Agent: {agent_name} | Model: {self.model_name} | "
                 f"Timestamp: {timestamp} | Retry: {attempt}"
             )

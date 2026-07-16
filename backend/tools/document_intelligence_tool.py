@@ -62,6 +62,12 @@ class DocumentIntelligenceTool(BaseTool):
         elif "stripe" in company_name.lower():
             quote_text = "Management priority is focused on developer ecosystem stability and expansion of global card networks."
             url_text = file_path or "https://ir.company.com/reports"
+        elif "apple" in company_name.lower():
+            quote_text = "Management priority is focused on iPhone ecosystem retention, Apple Silicon hardware upgrades, and Services growth."
+            url_text = file_path or "https://investor.apple.com"
+        elif "google" in company_name.lower():
+            quote_text = "Management priority is focused on search monetization, Gemini model deployment across products, and Google Cloud scaling."
+            url_text = file_path or "https://abc.xyz/investor"
         else:
             quote_text = "Management priority is focused on core operational metrics and strategic growth initiatives."
             url_text = file_path or "https://ir.company.com/reports"
@@ -171,6 +177,84 @@ class DocumentIntelligenceTool(BaseTool):
                     tables_extracted=[
                         {"Year": "2024", "Revenue": "$14.0B", "Operating Income": "$1.5B"},
                         {"Year": "2025", "Revenue": "$16.5B", "Operating Income": "$2.2B"},
+                    ],
+                )
+            elif "apple" in company_name.lower():
+                doc_data = DocumentIntelligence(
+                    financial_statements=FactualString(
+                        value="Balance Sheet: Total Assets $350.0B, Cash $65.0B, Total Debt $95.0B",
+                        source=file_path or "AnnualReport.pdf",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    management_discussion=FactualString(
+                        value="Management discusses driving growth through device upgrades, expansion of services, and custom Apple Silicon innovations.",
+                        source=file_path or "AnnualReport.pdf",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    risks=FactualList(
+                        value=[
+                            "Supply chain disruption in APAC",
+                            "Regulatory antitrust challenges for the App Store",
+                            "Macroeconomic consumer spending shifts",
+                        ],
+                        source=file_path or "AnnualReport.pdf",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    opportunities=FactualList(
+                        value=[
+                            "AR/VR headset market maturity",
+                            "Custom silicon vertical integrations",
+                            "Financial services (Apple Card/Pay) expansion",
+                        ],
+                        source=file_path or "AnnualReport.pdf",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    tables_extracted=[
+                        {"Year": "2023", "Revenue": "$383.2B", "Operating Income": "$114.3B"},
+                        {"Year": "2024", "Revenue": "$391.0B", "Operating Income": "$118.5B"},
+                    ],
+                )
+            elif "google" in company_name.lower():
+                doc_data = DocumentIntelligence(
+                    financial_statements=FactualString(
+                        value="Balance Sheet: Total Assets $402.0B, Cash $110.0B, Total Debt $12.0B",
+                        source=file_path or "AnnualReport.pdf",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    management_discussion=FactualString(
+                        value="Management discusses driving growth through Google Search AI Overviews, YouTube subscription options, and enterprise Cloud computing services.",
+                        source=file_path or "AnnualReport.pdf",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    risks=FactualList(
+                        value=[
+                            "Evolving search alternatives",
+                            "Antitrust lawsuits regarding ad-tech",
+                            "Capital expenditures on AI hardware platforms",
+                        ],
+                        source=file_path or "AnnualReport.pdf",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    opportunities=FactualList(
+                        value=[
+                            "AI agent developer frameworks",
+                            "Google Cloud enterprise workspace tools",
+                            "YouTube monetization engines",
+                        ],
+                        source=file_path or "AnnualReport.pdf",
+                        confidence=0.98,
+                        evidence=[evidence_item],
+                    ),
+                    tables_extracted=[
+                        {"Year": "2023", "Revenue": "$307.4B", "Operating Income": "$84.3B"},
+                        {"Year": "2024", "Revenue": "$328.2B", "Operating Income": "$92.5B"},
                     ],
                 )
             else:

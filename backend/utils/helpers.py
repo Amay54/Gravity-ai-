@@ -29,13 +29,12 @@ def sanitize_domain(domain: str) -> str:
 def normalize_url(url: str) -> str:
     """
     Cleans up any URL to make it a valid absolute URL.
-    Removes duplicate prefixes such as https://https:// or http://https://
+    Removes duplicate and nested prefixes (e.g. docs.https://www.apple.com -> https://docs.apple.com)
     """
     if not url:
         return ""
     cleaned = url.strip()
     
-    # Check if it starts with protocol or www, or has double prefix
     lower_cleaned = cleaned.lower()
     has_protocol = lower_cleaned.startswith("http://") or lower_cleaned.startswith("https://") or "://" in lower_cleaned
     has_www = lower_cleaned.startswith("www.")
@@ -44,16 +43,13 @@ def normalize_url(url: str) -> str:
         # Not a URL, return as is
         return cleaned
         
-    # It is a URL. Let's normalize it.
     is_http = "http://" in lower_cleaned and "https://" not in lower_cleaned
     
-    no_proto = cleaned
-    while True:
-        prev = no_proto
-        no_proto = re.sub(r"^(https?://|www\.)+", "", no_proto, flags=re.IGNORECASE)
-        if no_proto == prev:
-            break
-            
+    # Strip any protocols (http://, https://) and www. prefixes anywhere they appear in the URL
+    no_proto = re.sub(r"https?://", "", cleaned, flags=re.IGNORECASE)
+    no_proto = re.sub(r"\bwww\.", "", no_proto, flags=re.IGNORECASE)
+    
+    # Prepend correct protocol
     protocol = "http://" if is_http else "https://"
     return f"{protocol}{no_proto}"
 

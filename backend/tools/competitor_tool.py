@@ -77,6 +77,12 @@ class CompetitorTool(BaseTool):
             elif "stripe" in company_name.lower():
                 peers_found = ["Adyen", "PayPal", "Checkout.com"]
                 source_url = "https://en.wikipedia.org/wiki/Category:Financial_technology_companies"
+            elif "apple" in company_name.lower():
+                peers_found = ["Microsoft", "Google (Alphabet)", "Samsung"]
+                source_url = "https://en.wikipedia.org/wiki/List_of_largest_technology_companies"
+            elif "google" in company_name.lower():
+                peers_found = ["Microsoft", "Meta", "Amazon"]
+                source_url = "https://en.wikipedia.org/wiki/List_of_largest_technology_companies"
             else:
                 peers_found = ["PeerGroupA", "PeerGroupB"]
                 source_url = "https://www.wikipedia.org"

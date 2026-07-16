@@ -83,6 +83,32 @@ class NewsTool(BaseTool):
                         "date": "2026-07-04",
                     },
                 ]
+            elif "apple" in company_name.lower():
+                articles = [
+                    {
+                        "title": "Apple Vision Pro Releases Internationally to Mixed Reviews",
+                        "url": "https://bloomberg.com/apple-vision-pro",
+                        "date": "2026-07-02",
+                    },
+                    {
+                        "title": "Apple Silicon M5 Chip Production Scheduled for Late 2026",
+                        "url": "https://techcrunch.com/apple-m5-silicon",
+                        "date": "2026-07-04",
+                    },
+                ]
+            elif "google" in company_name.lower():
+                articles = [
+                    {
+                        "title": "Google DeepMind Announces AlphaFold 3 Integration Details",
+                        "url": "https://wired.com/google-deepmind-alphafold3",
+                        "date": "2026-07-02",
+                    },
+                    {
+                        "title": "Google Cloud Partners with AI Startups to Scale Model Training",
+                        "url": "https://techcrunch.com/google-cloud-ai-partners",
+                        "date": "2026-07-04",
+                    },
+                ]
             else:
                 articles = [
                     {

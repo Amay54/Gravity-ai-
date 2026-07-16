@@ -99,6 +99,12 @@ class CompanyTool(BaseTool):
             elif "stripe" in company_name.lower():
                 official_text = "Official: Stripe is a suite of APIs powering online payment processing and commerce solutions."
                 wiki_text = "Wikipedia: Stripe is a financial services and software as a service (SaaS) company dual-headquartered in South San Francisco, California and Dublin, Ireland. It was founded in 2009 by Irish entrepreneur brothers John and Patrick Collison. Key leadership includes Patrick Collison (CEO) and John Collison (President)."
+            elif "apple" in company_name.lower():
+                official_text = "Official: Apple designs personal computers, smartphones, tablets, and wearable devices."
+                wiki_text = "Wikipedia: Apple Inc. is an American multinational technology company headquartered in Cupertino, California. It was founded by Steve Jobs, Steve Wozniak, and Ronald Wayne on April 1, 1976. Key leadership includes Tim Cook (CEO) and Jeff Williams (COO)."
+            elif "google" in company_name.lower():
+                official_text = "Official: Google organizes the world's information and makes it universally accessible and useful."
+                wiki_text = "Wikipedia: Google LLC is an American multinational technology company focusing on search, advertising, cloud computing, and AI. It was founded by Larry Page and Sergey Brin on September 4, 1998. Key leadership includes Sundar Pichai (CEO) and Ruth Porat (CFO)."
             else:
                 official_text = ""
                 wiki_text = f"Wikipedia: {company_name} is a business organization operating under domain {domain}."
@@ -165,6 +171,34 @@ class CompanyTool(BaseTool):
                     hq_location=FactualString(value="South San Francisco, California and Dublin, Ireland", source=source_url or "Wikipedia", confidence=1.0),
                     founded_year=FactualInt(value=2009, source=source_url or "Wikipedia", confidence=1.0),
                     key_leadership=FactualList(value=["Patrick Collison", "John Collison"], source=source_url or "Wikipedia", confidence=1.0),
+                )
+            elif "apple" in company_name.lower():
+                profile = CompanyProfile(
+                    name=FactualString(value="Apple Inc.", source=source_url or "Wikipedia", confidence=1.0),
+                    domain=FactualString(value=domain, source="User input", confidence=1.0),
+                    industry=FactualString(value="Consumer Electronics / Technology", source=source_url or "Wikipedia", confidence=1.0),
+                    description=FactualString(
+                        value="Apple Inc. is an American multinational technology company headquartered in Cupertino, California. Apple is the world's largest technology company by revenue.",
+                        source=source_url or "Wikipedia",
+                        confidence=1.0,
+                    ),
+                    hq_location=FactualString(value="Cupertino, California", source=source_url or "Wikipedia", confidence=1.0),
+                    founded_year=FactualInt(value=1976, source=source_url or "Wikipedia", confidence=1.0),
+                    key_leadership=FactualList(value=["Tim Cook", "Steve Jobs", "Steve Wozniak", "Jeff Williams"], source=source_url or "Wikipedia", confidence=1.0),
+                )
+            elif "google" in company_name.lower():
+                profile = CompanyProfile(
+                    name=FactualString(value="Google LLC", source=source_url or "Wikipedia", confidence=1.0),
+                    domain=FactualString(value=domain, source="User input", confidence=1.0),
+                    industry=FactualString(value="Technology / Internet Search / Cloud Computing", source=source_url or "Wikipedia", confidence=1.0),
+                    description=FactualString(
+                        value="Google LLC is an American multinational technology company focusing on search engine technology, online advertising, cloud computing, computer software, quantum computing, and artificial intelligence.",
+                        source=source_url or "Wikipedia",
+                        confidence=1.0,
+                    ),
+                    hq_location=FactualString(value="Mountain View, California", source=source_url or "Wikipedia", confidence=1.0),
+                    founded_year=FactualInt(value=1998, source=source_url or "Wikipedia", confidence=1.0),
+                    key_leadership=FactualList(value=["Sundar Pichai", "Larry Page", "Sergey Brin", "Ruth Porat"], source=source_url or "Wikipedia", confidence=1.0),
                 )
             else:
                 profile = CompanyProfile(

@@ -414,69 +414,12 @@ async def chat_followup(session_id: str, payload: ChatPayload) -> dict[str, Any]
 
     logger.info(f"[Chat API] Context reuse processing question: {prompt}")
 
-    # Reasoning Step: Ask Gemini if the question requires executing scraper tools again
     llm = GeminiLLM(temperature=0.0)
-    decision_prompt = f"""
-    You are an AI Coordinator managing a corporate dossier on '{company_name}'.
-    The user is asking a follow-up question: "{prompt}"
-
-    Decide if answering this question requires executing one of the following scrapers again to fetch fresh facts, or if it can be answered using the existing report.
-    Existing tools:
-    - news_auditor: Use if they request newer articles, press, or live news updates.
-    - website_crawler: Use if they ask about careers, blogs, products, or leadership updates.
-    - None: Use if the question can be answered using the existing report facts.
-
-    Output exactly the name of the tool ("news_auditor" or "website_crawler") or "None". No other text.
-    """
-
-    tool_needed = "None"
-    try:
-        tool_needed = await llm.generate(decision_prompt)
-        tool_needed = tool_needed.strip()
-    except Exception as le:
-        logger.warning(f"[Chat API] Decision LLM call failed: {le}")
-
-    # If a specific tool is needed, run it
-    fresh_context = ""
-    if tool_needed in ["news_auditor", "website_crawler"]:
-        logger.info(f"[Chat API] Re-triggering tool '{tool_needed}' to fetch fresh details.")
-        try:
-            if tool_needed == "news_auditor":
-                res = await tool_registry.execute_tool("news_auditor", company_name=company_name)
-                fresh_context = f"Fresh news headlines scraped: {res.data}"
-                await research_repo.add_tool_log(
-                    job_id=session_id,
-                    tool_name="news_auditor",
-                    status="success",
-                    execution_time=res.execution_time,
-                    confidence=res.confidence,
-                    cache_hit=False,
-                    source_count=len(res.sources),
-                )
-            elif tool_needed == "website_crawler":
-                res = await tool_registry.execute_tool("website_crawler", domain=domain)
-                fresh_context = f"Fresh website details crawled: {res.data}"
-                await research_repo.add_tool_log(
-                    job_id=session_id,
-                    tool_name="website_crawler",
-                    status="success",
-                    execution_time=res.execution_time,
-                    confidence=res.confidence,
-                    cache_hit=False,
-                    source_count=len(res.sources),
-                )
-        except Exception as te:
-            logger.error(f"[Chat API] Tool execution failed: {te}")
-            fresh_context = f"Attempted to fetch fresh details using {tool_needed} but the tool execution failed: {str(te)}."
-
-    # Formulate answer using the dossier report as context
     answer_prompt = f"""
     Answer the corporate follow-up question: "{prompt}"
 
     Context dossier report:
     {report.model_dump_json()}
-
-    {fresh_context}
 
     Answer concisely based strictly on the factual details provided above. Do not invent details.
     """
@@ -492,7 +435,7 @@ async def chat_followup(session_id: str, payload: ChatPayload) -> dict[str, Any]
             session_id=session_id,
             role="assistant",
             message=answer,
-            tool_used=tool_needed if tool_needed != "None" else None,
+            tool_used=None,
         )
     except Exception as ae:
         logger.error(f"[Chat API] Database lookup/insert failed for add_chat_message assistant reply: {ae}")
@@ -503,7 +446,7 @@ async def chat_followup(session_id: str, payload: ChatPayload) -> dict[str, Any]
         f"duration_ms={_chat_dur:.2f} success=True error=None"
     )
 
-    return {"response": answer, "tool_triggered": tool_needed if tool_needed != "None" else None}
+    return {"response": answer, "tool_triggered": None}
 
 
 @router.get(
