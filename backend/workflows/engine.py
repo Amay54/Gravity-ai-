@@ -1,5 +1,6 @@
 import asyncio
 import json
+import time
 from collections.abc import Callable
 from datetime import datetime
 from typing import Any, TypedDict
@@ -43,6 +44,7 @@ from backend.schemas.research import (
     WebsiteAnalysis,
 )
 from backend.tools.registry import tool_registry
+from backend.cache.manager import cache_manager
 
 # Initialize global repositories
 research_repo = ResearchRepository()
@@ -81,6 +83,32 @@ STEP_TO_STAGE = {
     "validation": "validation",
     "synthesis": "synthesis",
 }
+
+
+def _update_progress(session_id: str, state: dict, step_label: str) -> None:
+    """Updates the in-memory cache with live progress so the status endpoint reflects real-time state."""
+    try:
+        cached = cache_manager.get(session_id) or {}
+        cached["session_id"] = state.get("session_id", session_id)
+        cached["company_name"] = state.get("company_name", cached.get("company_name", ""))
+        cached["domain"] = state.get("domain", cached.get("domain", ""))
+        cached["status"] = "running"
+        cached["timeline"] = state.get("timeline", cached.get("timeline", []))
+        cached["sources"] = state.get("sources", cached.get("sources", []))
+        cached["warnings"] = state.get("warnings", cached.get("warnings", []))
+        cached["errors"] = state.get("errors", cached.get("errors", []))
+        cached["execution_status"] = state.get("execution_status", cached.get("execution_status", []))
+        cached["shared_context"] = state.get("shared_context", cached.get("shared_context"))
+        cached["agent_bus"] = state.get("agent_bus", cached.get("agent_bus"))
+        cached["reflection_logs"] = state.get("reflection_logs", cached.get("reflection_logs", []))
+        cached["review_status"] = state.get("review_status", cached.get("review_status"))
+        cached["latencies"] = state.get("latencies", cached.get("latencies", {}))
+        cached["collected_data"] = state.get("collected_data", cached.get("collected_data", {}))
+        cached["plan"] = state.get("plan", cached.get("plan", {}))
+        cache_manager.set(session_id, cached)
+        logger.info(f"[Progress] Cache updated for session {session_id}: {step_label}")
+    except Exception as e:
+        logger.warning(f"[Progress] Failed to update cache for {session_id}: {e}")
 
 
 class ResearchState(TypedDict):
@@ -578,8 +606,9 @@ async def plan_node(state: ResearchState) -> dict[str, Any]:
     review_status_model = ReviewStatus(loops=0, approved=None, comments="")
     context.review_status = review_status_model
 
+    execution_status.append("Planning Complete")
     logger.info(f"[PLAN-NODE] [{state['session_id']}] plan_node returning successfully.")
-    return {
+    result_dict = {
         "status": "running",
         "plan": plan_dict,
         "timeline": timeline,
@@ -590,10 +619,13 @@ async def plan_node(state: ResearchState) -> dict[str, Any]:
         "review_status": review_status_model,
         "latencies": {"PlannerAgent": result.metrics.get("duration_ms", 0.0)},
     }
+    _update_progress(state["session_id"], {**state, **result_dict}, "Planning Complete")
+    return result_dict
 
 
 async def company_node(state: ResearchState) -> dict[str, Any]:
-    logger.info("[Workflow] Node 'company' initiated.")
+    _node_start = time.perf_counter()
+    logger.info("[Workflow] Node 'company' STARTED.")
     execution_status = list(state.get("execution_status", []))
     msg = "Research Manager: Directing Company profile lookup..."
     execution_status.append(msg)
@@ -647,17 +679,23 @@ async def company_node(state: ResearchState) -> dict[str, Any]:
         source_count=len(response.sources),
     )
 
-    return {
+    execution_status.append("Company Research Complete")
+    result_dict = {
         "shared_context": context,
         "sources": sources,
         "timeline": timeline,
         "execution_status": execution_status,
         "latencies": latencies,
     }
+    _node_dur = (time.perf_counter() - _node_start) * 1000
+    logger.info(f"[Workflow] Node 'company' FINISHED in {_node_dur:.0f}ms.")
+    _update_progress(state["session_id"], {**state, **result_dict}, "Company Research Complete")
+    return result_dict
 
 
 async def website_node(state: ResearchState) -> dict[str, Any]:
-    logger.info("[Workflow] Node 'website' initiated.")
+    _node_start = time.perf_counter()
+    logger.info("[Workflow] Node 'website' STARTED.")
     execution_status = list(state.get("execution_status", []))
     msg = "Research Manager: Initiating website directories crawl..."
     execution_status.append(msg)
@@ -705,13 +743,18 @@ async def website_node(state: ResearchState) -> dict[str, Any]:
         source_count=len(response.sources),
     )
 
-    return {
+    execution_status.append("Website Analysis Complete")
+    result_dict = {
         "shared_context": context,
         "sources": sources,
         "timeline": timeline,
         "execution_status": execution_status,
         "latencies": latencies,
     }
+    _node_dur = (time.perf_counter() - _node_start) * 1000
+    logger.info(f"[Workflow] Node 'website' FINISHED in {_node_dur:.0f}ms.")
+    _update_progress(state["session_id"], {**state, **result_dict}, "Website Analysis Complete")
+    return result_dict
 
 
 async def news_node(state: ResearchState) -> dict[str, Any]:
@@ -1236,7 +1279,8 @@ async def social_node(state: ResearchState) -> dict[str, Any]:
 
 
 async def reviewer_node(state: ResearchState) -> dict[str, Any]:
-    logger.info("[Workflow] Node 'reviewer' initiated.")
+    _node_start = time.perf_counter()
+    logger.info("[Workflow] Node 'reviewer' STARTED.")
     execution_status = list(state.get("execution_status", []))
     msg = "Report Reviewer Agent: Auditing contradiction risks & evidence counts..."
     execution_status.append(msg)
@@ -1290,20 +1334,26 @@ async def reviewer_node(state: ResearchState) -> dict[str, Any]:
     latencies = dict(state.get("latencies", {}))
     latencies[reviewer.name] = 15.0
 
-    return {
+    execution_status.append("Reviewer Complete")
+    result_dict = {
         "review_status": review_status_model,
         "shared_context": context,
         "timeline": timeline,
         "execution_status": execution_status,
         "latencies": latencies,
     }
+    _node_dur = (time.perf_counter() - _node_start) * 1000
+    logger.info(f"[Workflow] Node 'reviewer' FINISHED in {_node_dur:.0f}ms.")
+    _update_progress(state["session_id"], {**state, **result_dict}, "Reviewer Complete")
+    return result_dict
 
 
 async def validation_node(state: ResearchState) -> dict[str, Any]:
     """
     Validation stage checking the centralized evidence store citations before compilation.
     """
-    logger.info("[Workflow] Node 'validation' initiated.")
+    _node_start = time.perf_counter()
+    logger.info("[Workflow] Node 'validation' STARTED.")
     execution_status = list(state.get("execution_status", []))
     msg = "Validation Stage: Verifying factual fields with citations in Evidence Store..."
     execution_status.append(msg)
@@ -1346,11 +1396,17 @@ async def validation_node(state: ResearchState) -> dict[str, Any]:
         }
     )
 
-    return {"shared_context": context, "timeline": timeline, "execution_status": execution_status}
+    execution_status.append("Validation Complete")
+    result_dict = {"shared_context": context, "timeline": timeline, "execution_status": execution_status}
+    _node_dur = (time.perf_counter() - _node_start) * 1000
+    logger.info(f"[Workflow] Node 'validation' FINISHED in {_node_dur:.0f}ms.")
+    _update_progress(state["session_id"], {**state, **result_dict}, "Validation Complete")
+    return result_dict
 
 
 async def synthesis_node(state: ResearchState) -> dict[str, Any]:
-    logger.info("[Workflow] Node 'synthesis' initiated.")
+    _node_start = time.perf_counter()
+    logger.info("[Workflow] Node 'synthesis' STARTED.")
     execution_status = list(state.get("execution_status", []))
     msg = "Synthesizer Node: Compiling verified evidence into dossier..."
     execution_status.append(msg)
@@ -1516,18 +1572,23 @@ async def synthesis_node(state: ResearchState) -> dict[str, Any]:
     timeline.append({"step": "synthesis", "duration_ms": 0.0, "success": True})
     execution_status.append("Synthesis complete. Corporate Intelligence Dossier finalized!")
 
-    return {
+    result_dict = {
         "status": "completed",
         "collected_data": collected_data,
         "timeline": timeline,
         "execution_status": execution_status,
         "shared_context": context,
     }
+    _node_dur = (time.perf_counter() - _node_start) * 1000
+    logger.info(f"[Workflow] Node 'synthesis' FINISHED in {_node_dur:.0f}ms.")
+    _update_progress(state["session_id"], {**state, **result_dict}, "Completed")
+    return result_dict
 
 
 # Parallel stage wrapper nodes
 async def market_stage_node(state: ResearchState) -> dict[str, Any]:
-    logger.info("[Workflow] Stage 'market' initiated.")
+    _stage_start = time.perf_counter()
+    logger.info("[Workflow] Stage 'market' STARTED.")
     results = await asyncio.gather(
         execute_node_with_retry_and_timeout("news", news_node, state),
         execute_node_with_retry_and_timeout("competitor", competitor_node, state),
@@ -1540,11 +1601,15 @@ async def market_stage_node(state: ResearchState) -> dict[str, Any]:
             updates.append({"errors": [str(r)]})
         else:
             updates.append(r)
-    return merge_state_updates(state, updates)
+    merged = merge_state_updates(state, updates)
+    _dur = (time.perf_counter() - _stage_start) * 1000
+    logger.info(f"[Workflow] Stage 'market' FINISHED in {_dur:.0f}ms.")
+    return merged
 
 
 async def financials_stage_node(state: ResearchState) -> dict[str, Any]:
-    logger.info("[Workflow] Stage 'financials' initiated.")
+    _stage_start = time.perf_counter()
+    logger.info("[Workflow] Stage 'financials' STARTED.")
     results = await asyncio.gather(
         execute_node_with_retry_and_timeout("financial", financial_node, state),
         execute_node_with_retry_and_timeout("document", document_node, state),
@@ -1557,11 +1622,15 @@ async def financials_stage_node(state: ResearchState) -> dict[str, Any]:
             updates.append({"errors": [str(r)]})
         else:
             updates.append(r)
-    return merge_state_updates(state, updates)
+    merged = merge_state_updates(state, updates)
+    _dur = (time.perf_counter() - _stage_start) * 1000
+    logger.info(f"[Workflow] Stage 'financials' FINISHED in {_dur:.0f}ms.")
+    return merged
 
 
 async def extended_intel_stage_node(state: ResearchState) -> dict[str, Any]:
-    logger.info("[Workflow] Stage 'extended_intel' initiated.")
+    _stage_start = time.perf_counter()
+    logger.info("[Workflow] Stage 'extended_intel' STARTED.")
     results = await asyncio.gather(
         execute_node_with_retry_and_timeout("hiring", hiring_node, state),
         execute_node_with_retry_and_timeout("tech_stack", tech_stack_node, state),
@@ -1576,12 +1645,101 @@ async def extended_intel_stage_node(state: ResearchState) -> dict[str, Any]:
             updates.append({"errors": [str(r)]})
         else:
             updates.append(r)
-    return merge_state_updates(state, updates)
+    merged = merge_state_updates(state, updates)
+    _dur = (time.perf_counter() - _stage_start) * 1000
+    logger.info(f"[Workflow] Stage 'extended_intel' FINISHED in {_dur:.0f}ms.")
+    return merged
+
+
+# ---- Mega-parallel stage nodes ----
+async def core_research_stage_node(state: ResearchState) -> dict[str, Any]:
+    """Runs company + website research in parallel."""
+    _stage_start = time.perf_counter()
+    logger.info("[Workflow] Stage 'core_research' STARTED (company + website parallel).")
+
+    scope = state.get("scope", "full")
+    tasks = [execute_node_with_retry_and_timeout("company", company_node, state)]
+    if scope in ("full", "quick", "technology"):
+        tasks.append(execute_node_with_retry_and_timeout("website", website_node, state))
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    updates = []
+    for r in results:
+        if isinstance(r, Exception):
+            logger.error(f"[Workflow] Exception in core_research stage: {r}")
+            updates.append({"errors": [str(r)]})
+        else:
+            updates.append(r)
+    merged = merge_state_updates(state, updates)
+    merged.setdefault("execution_status", list(state.get("execution_status", [])))
+    merged["execution_status"].append("Core Research Complete (Company + Website)")
+
+    _dur = (time.perf_counter() - _stage_start) * 1000
+    logger.info(f"[Workflow] Stage 'core_research' FINISHED in {_dur:.0f}ms.")
+    _update_progress(state["session_id"], {**state, **merged}, "Core Research Complete")
+    return merged
+
+
+async def deep_research_stage_node(state: ResearchState) -> dict[str, Any]:
+    """Runs market + financials + extended_intel stages in parallel."""
+    _stage_start = time.perf_counter()
+    logger.info("[Workflow] Stage 'deep_research' STARTED (market + financials + ext_intel parallel).")
+
+    scope = state.get("scope", "full")
+    tasks = []
+
+    if scope in ("full",):
+        tasks.append(execute_node_with_retry_and_timeout("market", market_stage_node, state, timeout_seconds=90.0))
+    if scope in ("full", "financial"):
+        tasks.append(execute_node_with_retry_and_timeout("financials", financials_stage_node, state, timeout_seconds=90.0))
+    if scope in ("full", "hiring", "technology"):
+        tasks.append(execute_node_with_retry_and_timeout("extended_intel", extended_intel_stage_node, state, timeout_seconds=90.0))
+
+    if tasks:
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        updates = []
+        for r in results:
+            if isinstance(r, Exception):
+                logger.error(f"[Workflow] Exception in deep_research stage: {r}")
+                updates.append({"errors": [str(r)]})
+            else:
+                updates.append(r)
+        merged = merge_state_updates(state, updates)
+    else:
+        merged = dict(state)
+
+    merged.setdefault("execution_status", list(state.get("execution_status", [])))
+    merged["execution_status"].append("Deep Research Complete (Market + Financial + Intel)")
+
+    _dur = (time.perf_counter() - _stage_start) * 1000
+    logger.info(f"[Workflow] Stage 'deep_research' FINISHED in {_dur:.0f}ms.")
+    _update_progress(state["session_id"], {**state, **merged}, "Deep Research Complete")
+    return merged
+
+
+def route_after_reviewer(state: ResearchState) -> str:
+    """Simplified reviewer routing: approved → validation, rejected → deep_research re-run."""
+    review = state.get("review_status")
+    if review is None:
+        return "validation"
+
+    approved = review.approved if hasattr(review, "approved") else review.get("approved")
+    loops = review.loops if hasattr(review, "loops") else review.get("loops", 0)
+
+    if approved is False and loops <= 1:
+        logger.info(f"[Workflow] Reviewer rejected (loop {loops}). Re-running deep_research.")
+        return "deep_research"
+
+    logger.info(f"[Workflow] Reviewer approved (loop {loops}). Proceeding to validation.")
+    return "validation"
 
 
 class WorkflowEngine:
     """
     Compiles and initiates execution of LangGraph multi-agent state graphs.
+    Uses parallel stages for maximum throughput:
+      plan → core_research (company+website) → deep_research (market+financials+ext_intel)
+      → reviewer → validation → synthesis → END
     """
 
     def __init__(self) -> None:
@@ -1589,55 +1747,39 @@ class WorkflowEngine:
 
     def _compile_graph(self) -> Any:
         """
-        Builds the LangGraph transitions topology supporting Reviewer re-entry branches.
+        Builds the parallelized LangGraph topology with simplified deterministic routing.
         """
         logger.info("Compiling research workflow graph state transitions...")
         workflow = StateGraph(ResearchState)
 
-        # Add nodes
+        # Add nodes — using parallel mega-stages
         workflow.add_node("plan", plan_node)
-        workflow.add_node("company", company_node)
-        workflow.add_node("website", website_node)
-        workflow.add_node("market", market_stage_node)
-        workflow.add_node("financials", financials_stage_node)
-        workflow.add_node("extended_intel", extended_intel_stage_node)
+        workflow.add_node("core_research", core_research_stage_node)
+        workflow.add_node("deep_research", deep_research_stage_node)
         workflow.add_node("reviewer", reviewer_node)
         workflow.add_node("validation", validation_node)
         workflow.add_node("synthesis", synthesis_node)
 
-        # Connect entry point
+        # Linear pipeline with one conditional branch at reviewer
         workflow.set_entry_point("plan")
-
-        routing_map = {
-            "plan": "plan",
-            "company": "company",
-            "website": "website",
-            "news": "market",
-            "competitor": "market",
-            "financial": "financials",
-            "document": "financials",
-            "hiring": "extended_intel",
-            "tech_stack": "extended_intel",
-            "patent": "extended_intel",
-            "social": "extended_intel",
-            "reviewer": "reviewer",
+        workflow.add_edge("plan", "core_research")
+        workflow.add_edge("core_research", "deep_research")
+        workflow.add_edge("deep_research", "reviewer")
+        workflow.add_conditional_edges("reviewer", route_after_reviewer, {
+            "deep_research": "deep_research",
             "validation": "validation",
-            "synthesis": "synthesis",
-        }
-
-        # Set conditional edge routing paths using route_next_node
-        workflow.add_conditional_edges("plan", route_next_node, routing_map)
-        workflow.add_conditional_edges("company", route_next_node, routing_map)
-        workflow.add_conditional_edges("website", route_next_node, routing_map)
-        workflow.add_conditional_edges("market", route_next_node, routing_map)
-        workflow.add_conditional_edges("financials", route_next_node, routing_map)
-        workflow.add_conditional_edges("extended_intel", route_next_node, routing_map)
-        workflow.add_conditional_edges("reviewer", route_next_node, routing_map)
-        workflow.add_conditional_edges("validation", route_next_node, routing_map)
+        })
+        workflow.add_edge("validation", "synthesis")
         workflow.add_edge("synthesis", END)
 
-        return workflow.compile()
+        compiled = workflow.compile()
+        logger.info(
+            "Workflow graph compiled: plan → core_research → deep_research "
+            "→ reviewer → validation → synthesis → END"
+        )
+        return compiled
 
 
 # Global workflow engine compile reference
 workflow_engine = WorkflowEngine()
+

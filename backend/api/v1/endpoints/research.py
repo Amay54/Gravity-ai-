@@ -18,6 +18,9 @@ router = APIRouter()
 research_repo = ResearchRepository()
 report_repo = ReportRepository()
 
+# Background task registry - prevents Python 3.12+ GC of fire-and-forget tasks
+ACTIVE_TASKS: dict[str, 'asyncio.Task[None]'] = {}
+
 
 class ResearchRequest(BaseModel):
     """
@@ -128,14 +131,14 @@ async def execute_graph_background(
     try:
         final_state = await asyncio.wait_for(
             workflow_engine.graph.ainvoke(initial_state),
-            timeout=120.0,
+            timeout=300.0,
         )
         logger.info(
             f"[BG-WORKER] [{session_id}] Step 4: graph.ainvoke() completed OK. Updating cache with final state."
         )
         cache_manager.set(session_id, final_state)
     except TimeoutError:
-        error_msg = "LangGraph workflow timed out after 120 seconds"
+        error_msg = "LangGraph workflow timed out after 300 seconds"
         logger.error(f"[BG-WORKER] [{session_id}] Step 4 TIMEOUT: {error_msg}")
         initial_state["status"] = "failed"
         initial_state["errors"].append(error_msg)
@@ -160,6 +163,10 @@ async def execute_graph_background(
             logger.exception(
                 f"[BG-WORKER] [{session_id}] Failed to update job status after graph error."
             )
+
+    # Cleanup task registry
+    ACTIVE_TASKS.pop(session_id, None)
+    logger.info(f"[BG-WORKER] [{session_id}] Background task completed and removed from registry.")
 
 
 @router.post(
@@ -199,11 +206,13 @@ async def start_research(payload: ResearchRequest) -> dict[str, Any]:
             scope=payload.scope,
             priority=payload.priority,
         )
-    )
+    # Store in global registry to prevent GC on Python 3.12+
+    ACTIVE_TASKS[session_id] = task
     logger.info("========== AFTER CREATE TASK ==========")
     logger.info(f"Task object: {task}")
     logger.info(
-        f"[Research API] Background task successfully spawned: {task} for Session ID: {session_id}"
+        f"[Research API] Background task stored in ACTIVE_TASKS registry. "
+        f"Session: {session_id}. Active tasks: {len(ACTIVE_TASKS)}"
     )
 
     return {

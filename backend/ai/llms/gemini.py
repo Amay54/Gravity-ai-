@@ -22,11 +22,13 @@ class GeminiQuotaExceededError(Exception):
 class GeminiLLM(BaseLLM):
     """
     Google Gemini 2.5 Flash implementation of the BaseLLM interface using the official google-genai SDK.
+    All calls use the async client (client.aio) to avoid blocking the event loop.
     Includes session execution request caps, exponential backoffs, and caller audit logging.
     """
 
     _session_calls_count: int = 0
     MAX_GEMINI_CALLS_PER_SESSION: int = 15
+    PER_CALL_TIMEOUT: float = 45.0  # seconds per Gemini API call
 
     def __init__(self, model_name: str = "gemini-2.5-flash", temperature: float = 0.0) -> None:
         super().__init__(model_name, temperature)
@@ -70,7 +72,7 @@ class GeminiLLM(BaseLLM):
         return "UnknownCaller"
 
     async def _execute_with_backoff_and_limit(self, call_fn: Any, *args: Any, **kwargs: Any) -> Any:
-        """Enforces request limits, logs telemetry, and retries 429 errors using backoff."""
+        """Enforces request limits, logs telemetry, and retries 429/timeout errors using backoff."""
         if GeminiLLM._session_calls_count >= GeminiLLM.MAX_GEMINI_CALLS_PER_SESSION:
             msg = (
                 f"Gemini API request cap reached ({GeminiLLM.MAX_GEMINI_CALLS_PER_SESSION} calls). "
@@ -96,8 +98,21 @@ class GeminiLLM(BaseLLM):
             )
 
             try:
-                # Execute unified SDK call
-                return call_fn(*args, **kwargs)
+                # call_fn is an async function - await with per-call timeout
+                result = await asyncio.wait_for(
+                    call_fn(*args, **kwargs), timeout=self.PER_CALL_TIMEOUT
+                )
+                return result
+            except TimeoutError:
+                logger.warning(
+                    f"[Gemini Audit] Request timed out after {self.PER_CALL_TIMEOUT}s "
+                    f"(Attempt {attempt + 1}/{max_retries + 1})"
+                )
+                if attempt < max_retries:
+                    delay = base_delay * (backoff_factor ** attempt)
+                    await asyncio.sleep(delay)
+                    continue
+                raise
             except Exception as e:
                 err_msg = str(e)
                 if ("429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg) and attempt < max_retries:
@@ -112,14 +127,14 @@ class GeminiLLM(BaseLLM):
 
     async def generate(self, prompt: str, **kwargs: Any) -> str:
         """
-        Generates standard text using models.generate_content.
+        Generates standard text using the async models.generate_content.
         """
         logger.debug(f"Gemini generate content: {self.model_name}")
 
-        def _call() -> Any:
+        async def _call() -> Any:
             client = self._get_client()
             config = types.GenerateContentConfig(temperature=self.temperature, **kwargs)
-            return client.models.generate_content(
+            return await client.aio.models.generate_content(
                 model=self.model_name, contents=prompt, config=config
             )
 
@@ -132,16 +147,16 @@ class GeminiLLM(BaseLLM):
 
     async def stream(self, prompt: str, **kwargs: Any) -> AsyncGenerator[str, None]:
         """
-        Streams content tokens using models.generate_content_stream.
+        Streams content tokens using the async models.generate_content_stream.
         """
         logger.debug(f"Gemini stream content: {self.model_name}")
         try:
             client = self._get_client()
             config = types.GenerateContentConfig(temperature=self.temperature, **kwargs)
-            response_stream = client.models.generate_content_stream(
+            response_stream = await client.aio.models.generate_content_stream(
                 model=self.model_name, contents=prompt, config=config
             )
-            for chunk in response_stream:
+            async for chunk in response_stream:
                 yield chunk.text or ""
         except Exception as e:
             logger.error(f"Gemini streaming failed: {e}")
@@ -151,11 +166,11 @@ class GeminiLLM(BaseLLM):
         self, prompt: str, response_schema: type[BaseModel], **kwargs: Any
     ) -> BaseModel:
         """
-        Generates structured outputs matching Pydantic class maps.
+        Generates structured outputs matching Pydantic class maps using the async client.
         """
         logger.debug(f"Gemini generate JSON matching schema: {response_schema.__name__}")
 
-        def _call() -> Any:
+        async def _call() -> Any:
             client = self._get_client()
             config = types.GenerateContentConfig(
                 temperature=self.temperature,
@@ -163,7 +178,7 @@ class GeminiLLM(BaseLLM):
                 response_schema=response_schema,
                 **kwargs,
             )
-            return client.models.generate_content(
+            return await client.aio.models.generate_content(
                 model=self.model_name, contents=prompt, config=config
             )
 
@@ -176,11 +191,13 @@ class GeminiLLM(BaseLLM):
 
     async def count_tokens(self, prompt: str) -> int:
         """
-        Returns length estimation logs.
+        Returns token count estimation using asyncio.to_thread for the sync SDK call.
         """
         try:
             client = self._get_client()
-            response = client.models.count_tokens(model=self.model_name, contents=prompt)
+            response = await asyncio.to_thread(
+                client.models.count_tokens, model=self.model_name, contents=prompt
+            )
             return response.total_tokens
         except Exception as e:
             logger.error(f"Failed to count tokens: {e}")

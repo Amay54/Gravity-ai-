@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from datetime import datetime
 from typing import Any
@@ -29,13 +30,16 @@ class ReportRepository:
 
         try:
             client = self._get_client()
-            response = (
-                client.table("research_reports")
-                .select("*")
-                .eq("session_id", session_id)
-                .eq("is_deleted", False)
-                .order("version", desc=True)
-                .execute()
+            response = await asyncio.wait_for(
+                asyncio.to_thread(
+                    client.table("research_reports")
+                    .select("*")
+                    .eq("session_id", session_id)
+                    .eq("is_deleted", False)
+                    .order("version", desc=True)
+                    .execute
+                ),
+                timeout=10.0,
             )
             return response.data
         except Exception as e:
@@ -56,13 +60,16 @@ class ReportRepository:
 
         try:
             client = self._get_client()
-            response = (
-                client.table("research_reports")
-                .select("*")
-                .eq("session_id", session_id)
-                .eq("version", version)
-                .eq("is_deleted", False)
-                .execute()
+            response = await asyncio.wait_for(
+                asyncio.to_thread(
+                    client.table("research_reports")
+                    .select("*")
+                    .eq("session_id", session_id)
+                    .eq("version", version)
+                    .eq("is_deleted", False)
+                    .execute
+                ),
+                timeout=10.0,
             )
             if response.data:
                 return response.data[0]
@@ -173,7 +180,10 @@ class ReportRepository:
 
         try:
             client = self._get_client()
-            response = client.table("research_reports").insert(report_data_db).execute()
+            response = await asyncio.wait_for(
+                asyncio.to_thread(client.table("research_reports").insert(report_data_db).execute),
+                timeout=10.0,
+            )
             return response.data[0]
         except Exception as e:
             logger.error(f"[ReportRepository] Failed to save report version to Supabase: {e}")
@@ -198,8 +208,14 @@ class ReportRepository:
 
         try:
             client = self._get_client()
-            client.table("research_reports").update(updates).eq("session_id", session_id).eq(
-                "version", version
-            ).execute()
+            await asyncio.wait_for(
+                asyncio.to_thread(
+                    client.table("research_reports").update(updates)
+                    .eq("session_id", session_id)
+                    .eq("version", version)
+                    .execute
+                ),
+                timeout=10.0,
+            )
         except Exception as e:
             logger.error(f"[ReportRepository] Failed to soft delete report version {version}: {e}")

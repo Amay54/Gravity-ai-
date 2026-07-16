@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from datetime import datetime
 from typing import Any
@@ -6,6 +7,8 @@ from loguru import logger
 
 from backend.cache.manager import cache_manager
 from backend.core.supabase import supabase_wrapper
+
+SUPABASE_TIMEOUT = 10.0  # seconds per Supabase operation
 
 
 class ResearchRepository:
@@ -44,7 +47,10 @@ class ResearchRepository:
 
         try:
             client = self._get_client()
-            response = client.table("research_sessions").insert(job_data).execute()
+            response = await asyncio.wait_for(
+                asyncio.to_thread(client.table("research_sessions").insert(job_data).execute),
+                timeout=SUPABASE_TIMEOUT,
+            )
             return response.data[0]
         except Exception as e:
             logger.error(f"[ResearchRepository] Failed to create session in Supabase: {e}")
@@ -63,12 +69,15 @@ class ResearchRepository:
 
         try:
             client = self._get_client()
-            response = (
-                client.table("research_sessions")
-                .select("*")
-                .eq("id", job_id)
-                .eq("is_deleted", False)
-                .execute()
+            response = await asyncio.wait_for(
+                asyncio.to_thread(
+                    client.table("research_sessions")
+                    .select("*")
+                    .eq("id", job_id)
+                    .eq("is_deleted", False)
+                    .execute
+                ),
+                timeout=SUPABASE_TIMEOUT,
             )
             if response.data:
                 return response.data[0]
@@ -98,7 +107,12 @@ class ResearchRepository:
 
         try:
             client = self._get_client()
-            client.table("research_sessions").update(updates).eq("id", job_id).execute()
+            await asyncio.wait_for(
+                asyncio.to_thread(
+                    client.table("research_sessions").update(updates).eq("id", job_id).execute
+                ),
+                timeout=SUPABASE_TIMEOUT,
+            )
         except Exception as e:
             logger.error(f"[ResearchRepository] Failed to update session {job_id}: {e}")
 
@@ -112,13 +126,16 @@ class ResearchRepository:
 
         try:
             client = self._get_client()
-            response = (
-                client.table("research_sessions")
-                .select("*")
-                .eq("user_id", user_id)
-                .eq("is_deleted", False)
-                .order("started_at", desc=True)
-                .execute()
+            response = await asyncio.wait_for(
+                asyncio.to_thread(
+                    client.table("research_sessions")
+                    .select("*")
+                    .eq("user_id", user_id)
+                    .eq("is_deleted", False)
+                    .order("started_at", desc=True)
+                    .execute
+                ),
+                timeout=SUPABASE_TIMEOUT,
             )
             return response.data
         except Exception as e:
@@ -172,7 +189,10 @@ class ResearchRepository:
 
         try:
             client = self._get_client()
-            client.table("research_execution_logs").insert(log_data).execute()
+            await asyncio.wait_for(
+                asyncio.to_thread(client.table("research_execution_logs").insert(log_data).execute),
+                timeout=SUPABASE_TIMEOUT,
+            )
         except Exception as e:
             logger.error(f"[ResearchRepository] Failed to insert agent log: {e}")
 
@@ -206,7 +226,10 @@ class ResearchRepository:
 
         try:
             client = self._get_client()
-            client.table("tool_execution_logs").insert(log_data).execute()
+            await asyncio.wait_for(
+                asyncio.to_thread(client.table("tool_execution_logs").insert(log_data).execute),
+                timeout=SUPABASE_TIMEOUT,
+            )
         except Exception as e:
             logger.error(f"[ResearchRepository] Failed to insert tool execution log: {e}")
 
@@ -231,7 +254,10 @@ class ResearchRepository:
 
         try:
             client = self._get_client()
-            client.table("chat_messages").insert(msg_data).execute()
+            await asyncio.wait_for(
+                asyncio.to_thread(client.table("chat_messages").insert(msg_data).execute),
+                timeout=SUPABASE_TIMEOUT,
+            )
         except Exception as e:
             logger.error(f"[ResearchRepository] Failed to insert chat message: {e}")
 
@@ -244,12 +270,15 @@ class ResearchRepository:
 
         try:
             client = self._get_client()
-            response = (
-                client.table("chat_messages")
-                .select("*")
-                .eq("session_id", job_id)
-                .order("created_at", desc=False)
-                .execute()
+            response = await asyncio.wait_for(
+                asyncio.to_thread(
+                    client.table("chat_messages")
+                    .select("*")
+                    .eq("session_id", job_id)
+                    .order("created_at", desc=False)
+                    .execute
+                ),
+                timeout=SUPABASE_TIMEOUT,
             )
             return response.data
         except Exception as e:
