@@ -611,7 +611,7 @@ async def plan_node(state: ResearchState) -> dict[str, Any]:
     _plan_duration = result.metrics.get("duration_ms", 0.0)
     logger.info(
         f"[PLANNER_STAGE] session_id={state['session_id']} company_name={state['company_name']} "
-        f"duration_ms={_plan_duration:.2f} success={result.success} error={result.error if not result.success else 'None'}"
+        f"duration_ms={_plan_duration:.2f} success={result.success} error={result.error_message if not result.success else 'None'}"
     )
     result_dict = {
         "status": "running",
